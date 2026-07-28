@@ -1,0 +1,43 @@
+:root {
+  /* Warm Competitive Base Neutrals */
+  --color-bg: #F8F4EC;
+  --color-surface: #FFFDF8;
+  --color-surface-2: #EFE7DA;
+  --color-border: #D8CCBC;
+  --color-border-2: #CFC1B0;
+
+  /* Typography Colors */
+  --color-text: #2D221C;
+  --color-text-2: #6E6259;
+  --color-text-3: #A3968B;
+
+  /* Core Accents & Glows */
+  --color-orange: #D96C2D;
+  --color-orange-glow: rgba(217, 108, 45, 0.15);
+  --color-yellow: #E9B824;
+  --color-yellow-glow: rgba(233, 184, 36, 0.15);
+
+  /* Character Classes / Factions */
+  --color-warrior: #D96C2D;
+  --color-support: #3E8E63;
+  --color-trickster: #E9B824;
+  --color-mystic: #2F7CBB;
+  --color-royal: #7B4FA3;
+  --color-rogue: #9C4B5E;
+
+  /* UI Status Indications */
+  --color-success: #3E8E63;
+  --color-warning: #E9B824;
+  --color-danger: #9C4B5E;
+
+  /* Legacy Class aliases for compatibility */
+  --color-joker: #E9B824;
+  --color-wall: #3E8E63;
+  --color-striker: #D96C2D;
+  --color-mastermind: #2F7CBB;
+
+  /* Fonts */
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --font-card: 'Cinzel', serif;
+}
