@@ -1,6 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
-import { useProfile } from '../../hooks/useProfile'
 
 export function DashboardNavBar() {
   const location = useLocation()
@@ -9,14 +8,13 @@ export function DashboardNavBar() {
 
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
-  const { profile } = useProfile(user?.id ?? '')
 
   const navItems = [
-    { label: 'Dashboard', path: '/home' },
-    { label: 'Room Browser', path: '/rooms' },
-    { label: 'Leaderboard', path: '/leaderboard' },
-    { label: 'Match History', path: '/history' },
-    { label: 'Rulebook', path: '/rulebook' },
+    { label: 'Dashboard', path: '/home', icon: '🏠' },
+    { label: 'Room Browser', path: '/rooms', icon: '⚔️' },
+    { label: 'Leaderboard', path: '/leaderboard', icon: '🏆' },
+    { label: 'Match History', path: '/history', icon: '📜' },
+    { label: 'Rulebook', path: '/rulebook', icon: '📖' },
   ]
 
   const mobileNavItems = [
@@ -77,36 +75,42 @@ export function DashboardNavBar() {
   return (
     <>
       {/* Top Header Navbar */}
-      <header className="sticky top-0 z-40 w-full border-b border-w-border/80 bg-w-surface/95 backdrop-blur-md shadow-sm transition-all">
+      <header className="sticky top-0 z-40 w-full border-b border-w-border/80 bg-w-surface/90 backdrop-blur-xl shadow-tactile-sm">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
           
           {/* Brand Logo & Version Pill */}
           <div className="flex items-center gap-3">
-            <Link to="/home" className="group flex items-center gap-2">
-              <span className="font-display text-xl sm:text-2xl font-black tracking-widest text-w-orange transition-transform group-hover:scale-105">
-                WAHALA
-              </span>
-              <span className="rounded-md border border-w-orange/30 bg-w-orange/10 px-2 py-0.5 font-display text-[10px] font-bold uppercase tracking-wider text-w-orange">
-                v1.0
-              </span>
+            <Link to="/home" className="group flex items-center gap-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange rounded-xl">
+              <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-w-orange to-w-yellow flex items-center justify-center font-display text-lg font-black text-w-surface shadow-tactile-sm group-hover:scale-105 transition-transform">
+                ⚡
+              </div>
+              <div className="flex flex-col">
+                <span className="font-display text-xl sm:text-2xl font-black tracking-widest text-w-orange leading-none group-hover:text-w-yellow transition-colors">
+                  WAHALA
+                </span>
+                <span className="text-[9px] font-bold text-w-text-3 uppercase tracking-widest mt-0.5">
+                  Whot Battles v1.0
+                </span>
+              </div>
             </Link>
           </div>
 
           {/* Desktop Web App Navigation Links */}
-          <nav className="hidden items-center gap-1 lg:flex">
+          <nav className="hidden items-center gap-1.5 lg:flex bg-w-bg/80 border border-w-border/60 p-1.5 rounded-2xl shadow-inner">
             {navItems.map((item) => {
               const isActive = currentPath === item.path
               return (
                 <Link
                   key={item.label}
                   to={item.path}
-                  className={`rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
+                  className={`rounded-xl px-4 py-2 text-xs font-display font-bold transition-[colors,border-color,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange flex items-center gap-2 ${
                     isActive
-                      ? 'bg-w-surface-2 text-w-orange shadow-tactile-sm'
+                      ? 'border border-w-orange/40 bg-w-orange/10 text-w-orange shadow-tactile-sm'
                       : 'text-w-text-2 hover:bg-w-surface hover:text-w-text'
                   }`}
                 >
-                  {item.label}
+                  <span className="text-sm select-none">{item.icon}</span>
+                  <span>{item.label}</span>
                 </Link>
               )
             })}
@@ -114,28 +118,19 @@ export function DashboardNavBar() {
 
           {/* Desktop Right User Controls */}
           <div className="hidden items-center gap-4 lg:flex">
-            {/* Coins Indicator Pill */}
-            <div className="flex items-center gap-2 rounded-full border border-w-border bg-w-surface-2 px-3.5 py-1.5 text-xs font-bold text-w-yellow shadow-tactile-sm">
-              <svg className="h-4 w-4 fill-w-yellow text-w-yellow" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="9" className="fill-w-yellow/20 stroke-w-yellow stroke-2" />
-                <path d="M12 6v12M9 9h6M9 15h6" className="stroke-w-yellow stroke-2" />
-              </svg>
-              <span className="font-display font-black text-sm">{profile?.coins ?? 120}</span>
-              <span className="text-[10px] font-medium uppercase tracking-wider text-w-text-3">Coins</span>
-            </div>
-
             {/* Quick Actions / Settings Icon */}
             <Link
               to="/settings"
               title="Settings"
-              className={`rounded-full border p-2.5 transition-all ${
+              aria-label="Settings"
+              className={`rounded-xl border p-2.5 transition-[colors,border-color,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange ${
                 isSettings
                   ? 'border-w-orange bg-w-orange/10 text-w-orange shadow-tactile-sm'
                   : 'border-w-border bg-w-surface text-w-text-2 hover:border-w-orange hover:text-w-orange'
               }`}
             >
               <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
-                <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6-3.6z" />
+                <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6-3.6z" />
               </svg>
             </Link>
 
@@ -143,16 +138,16 @@ export function DashboardNavBar() {
             <div className="flex items-center gap-3 border-l border-w-border/80 pl-4">
               <Link
                 to="/profile/preview-user"
-                className="group flex items-center gap-2.5 rounded-full border border-w-border bg-w-surface p-1 pr-3 transition-all hover:border-w-orange"
+                className="group flex items-center gap-2.5 rounded-2xl border border-w-border bg-w-surface p-1.5 pr-3.5 transition-[border-color,background-color] hover:border-w-orange/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange"
               >
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-w-orange font-display text-xs font-bold text-w-text shadow-sm">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-w-orange font-display text-xs font-black text-w-surface shadow-tactile-sm">
                   {(user?.username || 'P').slice(0, 2).toUpperCase()}
                 </div>
                 <div className="flex flex-col text-left">
-                  <span className="font-display text-xs font-bold text-w-text group-hover:text-w-orange transition-colors">
+                  <span className="font-display text-xs font-black text-w-text group-hover:text-w-orange transition-colors">
                     {user?.username || 'Player One'}
                   </span>
-                  <span className="text-[10px] font-medium text-w-text-3">Class Master</span>
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-w-orange">The Mastermind</span>
                 </div>
               </Link>
 
@@ -161,7 +156,8 @@ export function DashboardNavBar() {
                 type="button"
                 onClick={handleLogout}
                 title="Logout"
-                className="rounded-full border border-w-border bg-w-surface p-2 text-w-text-3 transition-colors hover:border-w-danger/40 hover:bg-w-danger/10 hover:text-w-danger"
+                aria-label="Log Out"
+                className="rounded-xl border border-w-border bg-w-surface p-2.5 text-w-text-3 transition-colors hover:border-w-danger/40 hover:bg-w-danger/10 hover:text-w-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-danger"
               >
                 <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
                   <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
@@ -172,15 +168,6 @@ export function DashboardNavBar() {
 
           {/* Mobile & Tablet Top Quick Bar */}
           <div className="flex items-center gap-2.5 lg:hidden">
-            {/* Mobile Coin Pill */}
-            <div className="flex items-center gap-1.5 rounded-full border border-w-border bg-w-surface-2 px-2.5 py-1 text-xs font-bold text-w-yellow">
-              <svg className="h-3.5 w-3.5 fill-w-yellow text-w-yellow" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="9" className="fill-w-yellow/20 stroke-w-yellow stroke-2" />
-                <path d="M12 6v12M9 9h6M9 15h6" className="stroke-w-yellow stroke-2" />
-              </svg>
-              <span className="font-display font-black text-xs">{profile?.coins ?? 120}</span>
-            </div>
-
             {/* Mobile Settings Icon Link */}
             <Link
               to="/settings"

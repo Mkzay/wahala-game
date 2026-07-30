@@ -29,118 +29,85 @@ export default function Lobby() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-w-bg text-w-text flex flex-col justify-between">
+    <div className="min-h-screen w-full bg-w-bg text-w-text flex flex-col justify-between select-none">
       <DashboardNavBar />
 
-      <main className="mx-auto w-full max-w-7xl flex-1 px-4 pt-6 pb-24 lg:pb-8 sm:px-6 lg:px-8 flex flex-col gap-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-w-border/80 pb-4">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-24 lg:pb-8 flex flex-col gap-6">
+        
+        {/* Header Hero Banner */}
+        <header className="rounded-3xl border border-w-border bg-gradient-to-r from-w-surface via-w-bg to-w-surface p-6 shadow-tactile-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <span className="text-xs font-display font-bold uppercase tracking-widest text-w-orange">Room Arena</span>
-            <h1 className="font-display text-2xl sm:text-3xl font-black text-w-text mt-0.5 whitespace-nowrap">
-              Lobby <span className="text-w-orange">WHL-4829</span>
+            <span className="text-[10px] sm:text-xs font-display font-black uppercase tracking-widest text-w-orange bg-w-orange/10 border border-w-orange/30 px-3 py-1 rounded-full">
+              Room Arena Lobby ⚔️
+            </span>
+            <h1 className="font-display text-2xl sm:text-4xl font-black text-w-text mt-2">
+              Mkzay’s <span className="text-w-orange">den of chaos</span>
             </h1>
+            <p className="text-xs sm:text-sm text-w-text-2 mt-1">
+              {mode === 'classic' ? 'Classic Whot' : 'Progression'} Mode · {rounds} Rounds · {visibility} Room
+            </p>
           </div>
-          <div className="flex items-center gap-2.5 self-start sm:self-auto">
+
+          <div className="flex items-center gap-2.5 flex-shrink-0">
             <button
               type="button"
               onClick={handleCopyCode}
-              className="rounded-xl border border-w-border bg-w-surface hover:border-w-orange px-3 py-2 text-xs font-bold text-w-text transition-colors shadow-tactile-sm flex items-center gap-2"
+              className="rounded-2xl border border-w-border bg-w-surface hover:border-w-orange px-4 py-2.5 text-xs font-display font-bold text-w-text transition-colors shadow-tactile-sm flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange"
             >
-              <span className="flex items-center gap-1.5 whitespace-nowrap">
-                <svg className="h-4 w-4 fill-current text-w-orange" viewBox="0 0 24 24">
-                  <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
-                </svg>
-                {copied ? 'Code Copied!' : 'Code: WHL-4829'}
-              </span>
+              <svg className="h-4 w-4 fill-current text-w-orange" viewBox="0 0 24 24">
+                <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
+              </svg>
+              <span>{copied ? 'Code Copied!' : 'Code: WHL-4829'}</span>
             </button>
+
             <Link
               to="/rooms"
               aria-label="Leave Lobby"
               title="Leave Lobby"
-              className="h-8 w-8 rounded-full border border-w-border bg-w-bg hover:bg-w-surface-2 hover:border-w-orange text-w-text-2 hover:text-w-orange transition-all flex items-center justify-center flex-shrink-0 shadow-tactile-sm"
+              className="h-10 w-10 rounded-2xl border border-w-border bg-w-surface hover:border-w-orange text-w-text-2 hover:text-w-orange transition-[colors,border-color] flex items-center justify-center flex-shrink-0 shadow-tactile-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange"
             >
               <svg className="h-4 w-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M19 12H5M12 19l-7-7 7-7" />
               </svg>
             </Link>
           </div>
-        </div>
-
-        {/* Room Header Info Card */}
-        <section className="mb-4 rounded-2xl border border-w-border bg-w-surface p-5 shadow-tactile-md">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <p className="font-display text-lg font-black text-w-text">Mkzay’s den of chaos</p>
-              <p className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-w-text-2">
-                <span className="capitalize font-semibold text-w-warrior">{mode} Mode</span>
-                <span className="h-3 w-px bg-w-border" />
-                <span>{rounds} Rounds</span>
-                <span className="h-3 w-px bg-w-border" />
-                <span className="capitalize">{visibility} Room</span>
-              </p>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 border border-w-border bg-w-bg px-3.5 py-1.5 rounded-xl shadow-tactile-sm">
-                <span className="font-display text-xs font-black tracking-widest text-w-text-2">WHL-4829</span>
-                <button
-                  type="button"
-                  onClick={handleCopyCode}
-                  className="text-[10px] text-w-warrior hover:text-w-warrior/80 transition-colors font-bold uppercase tracking-wider pl-1.5 border-l border-w-border"
-                >
-                  {copied ? 'Copied!' : 'Copy'}
-                </button>
-              </div>
-
-              <button
-                type="button"
-                disabled={!isHostView}
-                onClick={() => setShowEditSheet(true)}
-                className={`rounded-xl border px-4 py-2 text-xs font-bold transition-all ${
-                  isHostView
-                    ? 'border-w-warrior text-w-warrior hover:bg-w-surface-2 shadow-tactile-sm'
-                    : 'cursor-not-allowed border-w-border bg-w-surface-2 text-w-text-3'
-                }`}
-              >
-                Lobby settings
-              </button>
-            </div>
-          </div>
-        </section>
+        </header>
 
         {/* Widescreen Responsive Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-6 flex-1 lg:overflow-hidden items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start flex-1">
           
           {/* Left Column: Player Slots list (occupies 7 cols on large screens) */}
-          <div className="col-span-1 lg:col-span-7 flex flex-col gap-5 h-full lg:overflow-hidden">
-            <header className="flex items-center justify-between border-b border-w-border pb-3">
-              <div>
-                <h2 className="font-display text-base font-black uppercase tracking-wider text-w-text-2">
+          <div className="col-span-1 lg:col-span-7 flex flex-col gap-4">
+            
+            <header className="flex items-center justify-between rounded-2xl border border-w-border bg-w-surface px-5 py-3.5 shadow-tactile-sm">
+              <div className="flex items-center gap-2">
+                <span className="h-2.5 w-2.5 rounded-full bg-w-success animate-ping" />
+                <h2 className="font-display text-xs sm:text-sm font-black uppercase tracking-wider text-w-text">
                   Lobby Members
                 </h2>
               </div>
               <div className="text-right">
-                <span className="font-display text-lg font-black text-w-warrior">3</span>
-                <span className="text-xs text-w-text-2"> / {maxPlayers}</span>
+                <span className="font-display text-base font-black text-w-orange">3</span>
+                <span className="text-xs text-w-text-2 font-bold"> / {maxPlayers} Slots</span>
               </div>
             </header>
 
             {/* Players list slots */}
-            <section className="space-y-3 flex-1 lg:overflow-y-auto pr-1">
+            <section className="space-y-3">
               <PlayerRow
                 name="Mkzay"
-                subtext="Host · The Trickster"
-                badgeLabel="Host"
-                badgeClassName="bg-w-orange/20 text-w-orange"
-                containerClassName="border-w-orange/40 bg-w-surface-2"
+                subtext="Host · The Mastermind"
+                badgeLabel="Host 👑"
+                badgeClassName="bg-w-orange/20 text-w-orange border border-w-orange/40"
+                containerClassName="border-w-orange/40 bg-w-surface shadow-tactile-sm"
               />
               <PlayerRow
                 name="Esther"
                 subtext={isHostView ? 'The Striker' : 'You · The Striker'}
-                badgeLabel={!isHostView && isReady ? 'Ready' : (isHostView ? 'Ready' : 'Not Ready')}
+                badgeLabel={!isHostView && isReady ? 'Ready ✓' : (isHostView ? 'Ready ✓' : 'Not Ready')}
                 badgeClassName={
                   (!isHostView && isReady) || isHostView
-                    ? 'bg-w-success/20 text-w-success'
+                    ? 'bg-w-success/20 text-w-success border border-w-success/40'
                     : 'bg-w-surface-2 text-w-text-3'
                 }
                 containerClassName={
@@ -161,15 +128,15 @@ export default function Lobby() {
               {[...Array(Math.max(0, maxPlayers - 3))].map((_, i) => (
                 <article
                   key={i}
-                  className="rounded-xl border border-dashed border-w-border px-4 py-3.5 text-xs text-w-text-3 flex items-center justify-between select-none"
+                  className="rounded-2xl border border-dashed border-w-border/80 bg-w-bg/50 px-5 py-4 text-xs text-w-text-3 flex items-center justify-between select-none"
                 >
-                  <span className="flex items-center gap-2">
-                    <span className="h-5 w-5 rounded-full border border-dashed border-w-border flex items-center justify-center font-bold">
+                  <span className="flex items-center gap-2.5 font-medium">
+                    <span className="h-6 w-6 rounded-lg border border-dashed border-w-border flex items-center justify-center font-bold text-w-text-3">
                       +
                     </span>
-                    Waiting for player slot…
+                    Waiting for opponent slot…
                   </span>
-                  <span className="text-[10px] uppercase font-bold tracking-widest opacity-55">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-w-text-3">
                     Open Slot
                   </span>
                 </article>
@@ -177,182 +144,213 @@ export default function Lobby() {
             </section>
           </div>
 
-          {/* Right Column: Settings, Meta and Rules (occupies 5 cols on large screens) */}
-          <div className="col-span-1 lg:col-span-5 flex flex-col gap-6 h-full lg:overflow-y-auto pr-1">
+          {/* Right Column: Host Actions & Settings (occupies 5 cols on large screens) */}
+          <aside className="col-span-1 lg:col-span-5 flex flex-col gap-6">
             
-            {showEditSheet && isHostView && (
-              <section className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setShowEditSheet(false)}>
-                <div className="w-full max-w-md rounded-3xl border border-w-border bg-w-surface p-6 shadow-tactile-lg relative animate-fade-in" onClick={(e) => e.stopPropagation()}>
-                  <button
-                    type="button"
-                    onClick={() => setShowEditSheet(false)}
-                    className="absolute top-4 right-4 text-w-text-3 hover:text-w-text transition-colors font-display text-sm font-bold"
-                  >
-                    ✕
-                  </button>
-                  <h2 className="mb-5 font-display text-lg font-black">
-                    Room <span className="text-w-warrior">Settings</span>
-                  </h2>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <span className="mb-2 block text-xs font-semibold text-w-text-2">Game Mode</span>
-                      <div className="rounded-xl border border-w-border bg-w-bg p-1">
-                        <div className="grid grid-cols-2 gap-1">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setMode('classic')
-                              setVisibility('private')
-                            }}
-                            className={`rounded-lg px-2 py-2 text-sm font-bold transition-all ${
-                              mode === 'classic' ? 'bg-w-warrior text-w-text shadow-tactile-sm' : 'text-w-text-2 hover:text-w-text'
-                            }`}
-                          >
-                            Classic
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setMode('progression')
-                              setVisibility('public')
-                            }}
-                            className={`rounded-lg px-2 py-2 text-sm font-bold transition-all ${
-                              mode === 'progression' ? 'bg-w-warrior text-w-text shadow-tactile-sm' : 'text-w-text-2 hover:text-w-text'
-                            }`}
-                          >
-                            Progression
-                          </button>
-                        </div>
-                      </div>
-                    </div>
+            {/* Host / Participant Actions Card */}
+            <article className="rounded-3xl border border-w-border bg-w-surface p-6 shadow-tactile-md flex flex-col gap-4">
+              <div className="flex items-center justify-between border-b border-w-border/60 pb-3">
+                <span className="text-xs font-display font-black uppercase tracking-wider text-w-text-2">
+                  Match Actions
+                </span>
+                <button
+                  type="button"
+                  disabled={!isHostView}
+                  onClick={() => setShowEditSheet(true)}
+                  className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full border transition-all ${
+                    isHostView
+                      ? 'border-w-orange text-w-orange bg-w-orange/10 hover:bg-w-orange/20 shadow-tactile-sm'
+                      : 'cursor-not-allowed border-w-border text-w-text-3 opacity-60'
+                  }`}
+                >
+                  ⚙️ Settings
+                </button>
+              </div>
 
-                    <div className="flex items-center justify-between rounded-xl border border-w-border bg-w-bg px-4 py-3">
-                      <span className="text-xs font-semibold text-w-text">Max Player slots</span>
-                      <div className="flex items-center gap-3">
-                        <button
-                          type="button"
-                          onClick={() => setMaxPlayers((prev) => Math.max(2, prev - 1))}
-                          className="h-7 w-7 border border-w-border rounded-lg bg-w-surface flex items-center justify-center font-bold text-w-text hover:bg-w-surface-2 transition-colors"
-                        >
-                          -
-                        </button>
-                        <span className="font-display font-black text-sm w-4 text-center">{maxPlayers}</span>
-                        <button
-                          type="button"
-                          onClick={() => setMaxPlayers((prev) => Math.min(12, prev + 1))}
-                          className="h-7 w-7 border border-w-border rounded-lg bg-w-surface flex items-center justify-center font-bold text-w-text hover:bg-w-surface-2 transition-colors"
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between rounded-xl border border-w-border bg-w-bg px-4 py-3">
-                      <span className="text-xs font-semibold text-w-text">Rounds to win</span>
-                      <div className="flex items-center gap-3">
-                        <button
-                          type="button"
-                          onClick={() => setRounds((prev) => Math.max(3, prev - 1))}
-                          className="h-7 w-7 border border-w-border rounded-lg bg-w-surface flex items-center justify-center font-bold text-w-text hover:bg-w-surface-2 transition-colors"
-                        >
-                          -
-                        </button>
-                        <span className="font-display font-black text-sm w-4 text-center">{rounds}</span>
-                        <button
-                          type="button"
-                          onClick={() => setRounds((prev) => Math.min(10, prev + 1))}
-                          className="h-7 w-7 border border-w-border rounded-lg bg-w-surface flex items-center justify-center font-bold text-w-text hover:bg-w-surface-2 transition-colors"
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => setShowEditSheet(false)}
-                    className="w-full mt-6 rounded-xl bg-w-warrior px-4 py-3.5 font-display text-sm font-bold text-w-text shadow-tactile-md hover:scale-[1.01] transition-transform"
-                  >
-                    Confirm Changes
-                  </button>
-                </div>
-              </section>
-            )}
-
-            <section className="mt-4 space-y-3">
               {isHostView ? (
-                <>
+                <div className="space-y-3 pt-1">
                   <button
                     type="button"
                     onClick={handleStartGame}
-                    className="w-full rounded-xl bg-w-warrior hover:bg-w-warrior/95 py-3.5 font-display text-sm font-bold text-w-text shadow-tactile-md hover:scale-[1.01] transition-transform flex items-center justify-center gap-2"
+                    className="w-full rounded-2xl bg-gradient-to-r from-w-orange to-w-yellow hover:from-w-orange/95 hover:to-w-yellow/95 py-4 font-display text-sm font-black text-w-surface shadow-tactile-md hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-w-orange transition-[transform,background-color] flex items-center justify-center gap-2"
                   >
-                    <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
+                    <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24">
                       <path d="M8 5v14l11-7z" />
                     </svg>
-                    Start Match
+                    Start Match Arena
                   </button>
                   <button
                     type="button"
-                    className="w-full rounded-xl border border-w-border hover:bg-w-danger/5 hover:border-w-danger/30 py-3 text-sm font-bold text-w-danger transition-colors"
+                    className="w-full rounded-2xl border border-w-border hover:bg-w-danger/10 hover:border-w-danger/40 py-3 text-xs font-bold text-w-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-danger transition-colors"
                   >
                     Disband Room
                   </button>
-                </>
+                </div>
               ) : (
-                <>
+                <div className="space-y-3 pt-1">
                   <button
                     type="button"
                     onClick={() => setIsReady(!isReady)}
-                    className={`w-full rounded-xl border py-3.5 font-display text-sm font-bold transition-all shadow-tactile-sm hover:scale-[1.01] ${
+                    className={`w-full rounded-2xl border py-4 font-display text-sm font-black shadow-tactile-md hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-w-success transition-[transform,background-color,border-color] ${
                       isReady
                         ? 'border-w-success bg-w-success text-w-surface'
-                        : 'border-w-support bg-w-surface-2 text-w-support hover:bg-w-support/10'
+                        : 'border-w-orange bg-w-orange/10 text-w-orange hover:bg-w-orange/20'
                     }`}
                   >
-                    {isReady ? '✓ Ready' : 'Ready Up'}
+                    {isReady ? '✓ Ready for Battle' : 'Ready Up'}
+                  </button>
+                  <Link
+                    to="/rooms"
+                    className="w-full rounded-2xl border border-w-border hover:border-w-orange/40 py-3 text-xs font-bold text-w-text-2 hover:text-w-text transition-colors text-center block"
+                  >
+                    Leave Lobby
+                  </Link>
+                </div>
+              )}
+            </article>
+
+            {/* Prototype Role Toggle Switcher */}
+            <div className="rounded-2xl border border-w-border bg-w-surface p-4 text-center shadow-tactile-sm">
+              <span className="text-[10px] font-bold text-w-text-3 uppercase tracking-wider block mb-2">
+                Preview Prototype Role
+              </span>
+              <div className="flex gap-2 justify-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsHostView(true)
+                    setShowEditSheet(false)
+                  }}
+                  className={`rounded-xl px-4 py-2 text-xs font-display font-bold transition-all ${
+                    isHostView ? 'bg-w-orange text-w-surface shadow-tactile-sm' : 'bg-w-bg text-w-text-2 hover:text-w-text'
+                  }`}
+                >
+                  Host View
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsHostView(false)
+                    setShowEditSheet(false)
+                  }}
+                  className={`rounded-xl px-4 py-2 text-xs font-display font-bold transition-all ${
+                    !isHostView ? 'bg-w-orange text-w-surface shadow-tactile-sm' : 'bg-w-bg text-w-text-2 hover:text-w-text'
+                  }`}
+                >
+                  Participant View
+                </button>
+              </div>
+            </div>
+
+          </aside>
+
+        </div>
+      </main>
+
+      {/* Edit Settings Modal */}
+      {showEditSheet && isHostView && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md" onClick={() => setShowEditSheet(false)}>
+          <div className="w-full max-w-md rounded-3xl border border-w-border bg-w-surface p-6 shadow-tactile-lg relative animate-fade-in" onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              onClick={() => setShowEditSheet(false)}
+              className="absolute top-5 right-5 text-w-text-3 hover:text-w-text transition-colors font-display text-sm font-black"
+            >
+              ✕
+            </button>
+            
+            <h2 className="mb-4 font-display text-xl font-black">
+              Lobby <span className="text-w-orange">Settings</span>
+            </h2>
+            
+            <div className="space-y-4">
+              <div>
+                <span className="mb-2 block text-xs font-bold text-w-text-2">Game Mode</span>
+                <div className="rounded-2xl border border-w-border bg-w-bg p-1.5 grid grid-cols-2 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMode('classic')
+                      setVisibility('private')
+                    }}
+                    className={`rounded-xl px-3 py-2 text-xs font-display font-black transition-all ${
+                      mode === 'classic' ? 'bg-w-orange text-w-surface shadow-tactile-sm' : 'text-w-text-2 hover:text-w-text'
+                    }`}
+                  >
+                    Classic
                   </button>
                   <button
                     type="button"
-                    className="w-full rounded-xl px-4 py-2.5 text-xs text-w-text-2 hover:text-w-danger transition-colors font-semibold"
+                    onClick={() => {
+                      setMode('progression')
+                      setVisibility('public')
+                    }}
+                    className={`rounded-xl px-3 py-2 text-xs font-display font-black transition-all ${
+                      mode === 'progression' ? 'bg-w-orange text-w-surface shadow-tactile-sm' : 'text-w-text-2 hover:text-w-text'
+                    }`}
                   >
-                    Leave Lobby
+                    Progression
                   </button>
-                </>
-              )}
-            </section>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between rounded-2xl border border-w-border/60 bg-w-bg px-4 py-3">
+                <span className="text-xs font-bold text-w-text">Max Player Slots</span>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setMaxPlayers((prev) => Math.max(2, prev - 1))}
+                    aria-label="Decrease player slots"
+                    className="h-8 w-8 border border-w-border rounded-xl bg-w-surface flex items-center justify-center font-bold text-w-text hover:bg-w-surface-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange"
+                  >
+                    -
+                  </button>
+                  <span className="font-display font-black text-sm w-4 text-center">{maxPlayers}</span>
+                  <button
+                    type="button"
+                    onClick={() => setMaxPlayers((prev) => Math.min(12, prev + 1))}
+                    aria-label="Increase player slots"
+                    className="h-8 w-8 border border-w-border rounded-xl bg-w-surface flex items-center justify-center font-bold text-w-text hover:bg-w-surface-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between rounded-2xl border border-w-border/60 bg-w-bg px-4 py-3">
+                <span className="text-xs font-bold text-w-text">Rounds to Win</span>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setRounds((prev) => Math.max(3, prev - 1))}
+                    aria-label="Decrease rounds to win"
+                    className="h-8 w-8 border border-w-border rounded-xl bg-w-surface flex items-center justify-center font-bold text-w-text hover:bg-w-surface-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange"
+                  >
+                    -
+                  </button>
+                  <span className="font-display font-black text-sm w-4 text-center">{rounds}</span>
+                  <button
+                    type="button"
+                    onClick={() => setRounds((prev) => Math.min(10, prev + 1))}
+                    aria-label="Increase rounds to win"
+                    className="h-8 w-8 border border-w-border rounded-xl bg-w-surface flex items-center justify-center font-bold text-w-text hover:bg-w-surface-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowEditSheet(false)}
+              className="w-full mt-6 rounded-2xl bg-w-orange px-4 py-3.5 font-display text-sm font-black text-w-surface shadow-tactile-md hover:scale-[1.01] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-w-orange transition-transform"
+            >
+              Confirm Changes
+            </button>
           </div>
         </div>
-
-        <div className="mt-5 flex justify-center gap-3">
-          <button
-            type="button"
-            onClick={() => {
-              setIsHostView(true)
-              setShowEditSheet(false)
-            }}
-            className={`rounded-full px-3 py-1 text-xs ${
-              isHostView ? 'bg-w-orange text-w-text' : 'bg-w-surface text-w-text-2'
-            }`}
-          >
-            Host view
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setIsHostView(false)
-              setShowEditSheet(false)
-            }}
-            className={`rounded-full px-3 py-1 text-xs ${
-              !isHostView ? 'bg-w-orange text-w-text' : 'bg-w-surface text-w-text-2'
-            }`}
-          >
-            View as Participant
-          </button>
-        </div>
-      </main>
+      )}
 
       <footer className="hidden md:block mt-12 text-center text-xs text-w-text-3 border-t border-w-border/30 py-6">
         © 2026 Wahala Entertainment. Room Lobby.

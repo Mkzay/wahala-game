@@ -125,7 +125,7 @@ export function AbilitiesPanel({
 
         {/* Hover / Long Press Tooltip */}
         {showTooltip && !toastMsg && (
-          <div className="bg-w-surface/95 backdrop-blur-xl border border-w-border p-3 rounded-2xl shadow-tactile-lg max-w-xs text-xs text-w-text animate-fade-in">
+          <div className="bg-w-surface/95 backdrop-blur-xl border border-w-border p-3 rounded-2xl shadow-tactile-lg max-w-xs text-xs text-w-text animate-fade-in text-balance">
             <div className="flex items-center gap-2 mb-1">
               <span className="text-base">{details.icon}</span>
               <span className="font-display font-black text-w-orange">{details.title}</span>

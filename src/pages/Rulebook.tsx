@@ -72,25 +72,38 @@ export default function Rulebook() {
   const activeSection = displaySections.find((s) => s.key === activeKey) ?? displaySections[0]
 
   return (
-    <div className="min-h-screen w-full bg-w-bg text-w-text flex flex-col justify-between">
+    <div className="min-h-screen w-full bg-w-bg text-w-text flex flex-col justify-between select-none">
       {/* Desktop & Mobile Header Navigation */}
       <DashboardNavBar />
 
-      <main className="mx-auto w-full max-w-7xl flex-1 px-4 pt-6 pb-24 lg:pb-8 sm:px-6 lg:px-8 flex flex-col gap-6">
-        <header className="flex flex-col border-b border-w-border/80 pb-4">
-          <span className="text-xs font-display font-bold uppercase tracking-widest text-w-orange">
-            Documentation & Guides
-          </span>
-          <h1 className="mt-1 font-display text-2xl sm:text-3xl font-black text-w-text">
-            Official <span className="text-w-orange">Rulebook</span>
-          </h1>
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-24 lg:pb-8 flex flex-col gap-6">
+        
+        {/* Header Hero Banner */}
+        <header className="rounded-3xl border border-w-border bg-gradient-to-r from-w-surface via-w-bg to-w-surface p-6 shadow-tactile-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <span className="text-[10px] sm:text-xs font-display font-black uppercase tracking-widest text-w-orange bg-w-orange/10 border border-w-orange/30 px-3 py-1 rounded-full">
+              Official Guidebook 📖
+            </span>
+            <h1 className="mt-2 font-display text-2xl sm:text-4xl font-black text-w-text">
+              Arena <span className="text-w-orange">Rulebook</span>
+            </h1>
+            <p className="text-xs sm:text-sm text-w-text-2 mt-1">
+              Master the card values, action triggers, character class abilities, and scoring rules.
+            </p>
+          </div>
+
+          <div className="flex gap-2 flex-wrap">
+            <span className="text-xs font-display font-bold text-w-yellow bg-w-yellow/10 border border-w-yellow/30 px-3.5 py-2 rounded-xl flex items-center gap-1.5">
+              <span>🃏</span> Whot Card #20 = 20 Pts Penalty
+            </span>
+          </div>
         </header>
 
         {/* Responsive Layout Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
           {/* Left Column: Explorer Index (occupies 4 cols) */}
-          <section className="col-span-1 lg:col-span-4 rounded-2xl border border-w-border bg-w-surface p-5 flex flex-col gap-4 shadow-tactile-sm">
+          <section className="col-span-1 lg:col-span-4 rounded-3xl border border-w-border bg-w-surface p-5 flex flex-col gap-4 shadow-tactile-md">
             
             {/* Search rulebook input */}
             <div className="rounded-xl border border-w-border bg-w-bg px-3.5 py-2.5 focus-within:border-w-orange transition-colors flex items-center gap-2">
@@ -98,10 +111,12 @@ export default function Rulebook() {
                 <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
               </svg>
               <input
+                name="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 autoComplete="off"
-                placeholder="Search rulebook guides..."
+                spellCheck={false}
+                placeholder="Search rulebook guides…"
                 className="w-full bg-transparent text-xs text-w-text outline-none placeholder:text-w-text-3"
               />
             </div>
@@ -116,13 +131,13 @@ export default function Rulebook() {
                     key={sec.key}
                     type="button"
                     onClick={() => setActiveKey(sec.key)}
-                    className={`w-full text-left rounded-xl border p-3.5 transition-all text-xs ${
+                    className={`w-full text-left rounded-2xl border p-4 transition-[colors,border-color,box-shadow] text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange ${
                       activeSection?.key === sec.key
                         ? 'border-w-orange bg-w-orange/10 text-w-orange shadow-tactile-sm'
-                        : 'border-w-border bg-w-bg/50 text-w-text-2 hover:bg-w-surface hover:text-w-text hover:border-w-orange/30'
+                        : 'border-w-border bg-w-bg text-w-text-2 hover:bg-w-surface hover:text-w-text hover:border-w-orange/40'
                     }`}
                   >
-                    <h2 className="font-display font-bold text-w-text text-xs">{sec.title}</h2>
+                    <h2 className="font-display font-black text-w-text text-xs sm:text-sm">{sec.title}</h2>
                     <p className="mt-1 text-[11px] text-w-text-2 line-clamp-1">{sec.desc}</p>
                   </button>
                 ))
@@ -131,32 +146,33 @@ export default function Rulebook() {
           </section>
 
           {/* Right Column: Details visualization panel (occupies 8 cols) */}
-          <section className="col-span-1 lg:col-span-8 rounded-2xl border border-w-border bg-w-surface p-5 sm:p-6 shadow-tactile-sm flex flex-col gap-6">
+          <section className="col-span-1 lg:col-span-8 rounded-3xl border border-w-border bg-w-surface p-6 sm:p-8 shadow-tactile-md flex flex-col gap-6">
             {activeSection ? (
               <div className="flex flex-col gap-5">
                 <header className="border-b border-w-border/60 pb-4">
-                  <span className="text-[10px] font-display font-bold uppercase tracking-widest text-w-orange block">
-                    Rulebook Section
+                  <span className="text-[10px] font-display font-black uppercase tracking-widest text-w-orange block">
+                    Section Guide
                   </span>
-                  <h2 className="font-display text-xl sm:text-2xl font-black mt-1 text-w-text">
+                  <h2 className="font-display text-xl sm:text-2xl font-black text-w-text mt-1">
                     {activeSection.title}
                   </h2>
-                  <p className="text-xs text-w-text-2 mt-1.5 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-w-text-2 mt-2 leading-relaxed">
                     {activeSection.desc}
                   </p>
                 </header>
 
                 <div className="space-y-3">
-                  {/* Detailed explanation cards */}
                   {activeSection.lines.map((line, idx) => (
                     <article
                       key={idx}
-                      className="rounded-xl border border-w-border bg-w-bg/60 p-4 text-xs leading-relaxed text-w-text flex gap-3.5 items-start transition-all hover:border-w-orange/30"
+                      className="rounded-2xl border border-w-border/60 bg-w-bg p-4 flex items-start gap-3 hover:border-w-orange/30 transition-colors"
                     >
-                      <span className="font-display font-black text-w-orange text-xs bg-w-orange/10 px-2 py-0.5 rounded border border-w-orange/20 flex-shrink-0 select-none">
-                        0{idx + 1}
-                      </span>
-                      <p className="text-w-text-2 font-medium">{line}</p>
+                      <div className="h-6 w-6 rounded-lg bg-w-orange/20 border border-w-orange/40 flex items-center justify-center font-display text-xs font-black text-w-orange flex-shrink-0 mt-0.5">
+                        {idx + 1}
+                      </div>
+                      <p className="text-xs sm:text-sm text-w-text leading-relaxed font-medium">
+                        {line}
+                      </p>
                     </article>
                   ))}
                 </div>
@@ -184,13 +200,8 @@ export default function Rulebook() {
                   </div>
                 )}
               </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center text-center p-8 text-w-text-3 text-xs italic">
-                Select a category from the index to display rules documentation.
-              </div>
-            )}
+            ) : null}
           </section>
-
         </div>
       </main>
 

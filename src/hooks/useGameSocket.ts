@@ -34,10 +34,10 @@ export function useGameSocket({
       return
     }
 
-    const socket = socketService.connect()
+    socketService.connect()
 
     const requestStateSnapshot = () => {
-      socket.emit('game:requestState', { gameId })
+      socketService.emit('game:join', { gameId })
     }
 
     const handleConnect = () => {
@@ -49,34 +49,34 @@ export function useGameSocket({
       setConnected(false)
     }
 
-    socket.on('connect', handleConnect)
-    socket.on('disconnect', handleDisconnect)
-    socket.on('game:stateSnapshot', applyStateSnapshot)
-    socket.on('game:card:played', onCardPlayed)
-    socket.on('game:turn:changed', onTurnChanged)
-    socket.on('game:rule:activated', onRuleActivated)
-    socket.on('round:ended', onRoundEnded)
-    socket.on('game:ended', onGameEnded)
-    socket.on('player:disconnected', onPlayerDisconnected)
-    socket.on('game:reaction:window:opened', onReactionWindowOpened)
-    socket.on('game:ability:activated', onAbilityUsed)
+    socketService.on('connect', handleConnect)
+    socketService.on('disconnect', handleDisconnect)
+    socketService.on('game:stateSnapshot', applyStateSnapshot)
+    socketService.on('card:played', onCardPlayed)
+    socketService.on('turn:changed', onTurnChanged)
+    socketService.on('rule:activated', onRuleActivated)
+    socketService.on('round:ended', onRoundEnded)
+    socketService.on('game:ended', onGameEnded)
+    socketService.on('player:disconnected', onPlayerDisconnected)
+    socketService.on('reaction:window:opened', onReactionWindowOpened)
+    socketService.on('ability:used', onAbilityUsed)
 
-    if (socket.connected) {
+    if (socketService.isConnected()) {
       handleConnect()
     }
 
     return () => {
-      socket.off('connect', handleConnect)
-      socket.off('disconnect', handleDisconnect)
-      socket.off('game:stateSnapshot', applyStateSnapshot)
-      socket.off('game:card:played', onCardPlayed)
-      socket.off('game:turn:changed', onTurnChanged)
-      socket.off('game:rule:activated', onRuleActivated)
-      socket.off('round:ended', onRoundEnded)
-      socket.off('game:ended', onGameEnded)
-      socket.off('player:disconnected', onPlayerDisconnected)
-      socket.off('game:reaction:window:opened', onReactionWindowOpened)
-      socket.off('game:ability:activated', onAbilityUsed)
+      socketService.off('connect', handleConnect)
+      socketService.off('disconnect', handleDisconnect)
+      socketService.off('game:stateSnapshot', applyStateSnapshot)
+      socketService.off('card:played', onCardPlayed)
+      socketService.off('turn:changed', onTurnChanged)
+      socketService.off('rule:activated', onRuleActivated)
+      socketService.off('round:ended', onRoundEnded)
+      socketService.off('game:ended', onGameEnded)
+      socketService.off('player:disconnected', onPlayerDisconnected)
+      socketService.off('reaction:window:opened', onReactionWindowOpened)
+      socketService.off('ability:used', onAbilityUsed)
       socketService.disconnect()
     }
   }, [

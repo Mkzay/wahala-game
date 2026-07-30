@@ -150,7 +150,8 @@ export function GameBoardTable({
         <button
           onClick={onDrawCard}
           disabled={currentTurnPlayerId !== localUserId}
-          className={`relative focus:outline-none transition-all duration-300 ${
+          aria-label="Market Deck - Tap to Draw Card"
+          className={`relative rounded-2xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-w-yellow transition-transform duration-300 ${
             currentTurnPlayerId === localUserId
               ? 'hover:scale-105 cursor-pointer ring-2 ring-w-yellow/30'
               : 'cursor-not-allowed opacity-80'
@@ -200,25 +201,27 @@ export function GameBoardTable({
 
       {/* Reaction Window Overlay */}
       {showReactionOverlay && (
-        <div className="absolute inset-x-4 bottom-4 z-30 animate-fade-in flex flex-col items-center">
-          <div className="rounded-2xl border border-w-orange/40 bg-w-surface/95 backdrop-blur-md p-3 shadow-tactile-lg max-w-sm w-full text-center flex flex-col items-center gap-2">
-            <div className="flex items-center gap-2 text-xs font-bold text-w-orange">
-              <span className="h-2 w-2 rounded-full bg-w-orange animate-ping" />
+        <div className="absolute inset-x-4 top-4 sm:top-6 z-40 animate-fade-in flex flex-col items-center pointer-events-auto">
+          <div className="rounded-3xl border-2 border-w-orange bg-w-surface/95 backdrop-blur-md p-4 shadow-tactile-lg max-w-sm w-full text-center flex flex-col items-center gap-2">
+            <div className="flex items-center gap-2 text-xs font-display font-black text-w-orange">
+              <span className="h-2.5 w-2.5 rounded-full bg-w-orange animate-ping" />
               <span>Reaction Window Active! ({Math.ceil(timeLeft / 1000)}s)</span>
             </div>
-            <p className="text-[10px] text-w-text-2">
+            <p className="text-xs text-w-text-2 font-medium leading-relaxed">
               A special card was played. Do you want to play a Hold On / Counter?
             </p>
-            <div className="flex gap-2 w-full mt-1">
+            <div className="flex gap-2.5 w-full mt-2">
               <button
+                type="button"
                 onClick={() => onReactionResponse(true)}
-                className="flex-1 rounded-xl bg-w-orange hover:bg-w-orange/90 text-w-text font-display text-xs font-bold py-1.5 shadow"
+                className="flex-1 rounded-2xl bg-w-orange hover:bg-w-orange/90 text-w-surface font-display text-xs font-black py-2.5 shadow-tactile-sm transition-transform active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange"
               >
                 Counter (Hold On)
               </button>
               <button
+                type="button"
                 onClick={() => onReactionResponse(false)}
-                className="flex-1 rounded-xl border border-w-border bg-w-bg hover:bg-w-surface-2 text-w-text-2 font-display text-xs font-bold py-1.5"
+                className="flex-1 rounded-2xl border border-w-border bg-w-bg hover:bg-w-surface-2 text-w-text font-display text-xs font-bold py-2.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange"
               >
                 Pass
               </button>

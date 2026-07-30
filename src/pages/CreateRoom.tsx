@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { StepperControl } from '../components/ui/StepperControl'
 import { DashboardNavBar } from '../components/ui/DashboardNavBar'
 import { roomService } from '../services/roomService'
+import { toast } from '../store/toastStore'
 
 type RoomVisibility = 'private' | 'public'
 type GameMode = 'classic' | 'progression'
@@ -17,7 +18,6 @@ export default function CreateRoom() {
   
   // Interactive API states
   const [roomName, setRoomName] = useState("Mkzay’s den of chaos")
-  const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
   const isPublic = visibility === 'public'
@@ -28,8 +28,28 @@ export default function CreateRoom() {
   const incrementRounds = () => setRounds((value) => Math.min(10, value + 1))
   const decrementRounds = () => setRounds((value) => Math.max(3, value - 1))
 
+  const applyPreset = (type: 'quick1v1' | 'standard4' | 'mayhem8') => {
+    if (type === 'quick1v1') {
+      setVisibility('private')
+      setMode('classic')
+      setMaxPlayers(2)
+      setRoomName("Quick 1v1 Arena")
+    } else if (type === 'standard4') {
+      setVisibility('public')
+      setMode('progression')
+      setMaxPlayers(4)
+      setRounds(5)
+      setRoomName("Standard 4-Player Battle")
+    } else if (type === 'mayhem8') {
+      setVisibility('public')
+      setMode('progression')
+      setMaxPlayers(8)
+      setRounds(7)
+      setRoomName("Naija Mayhem Arena")
+    }
+  }
+
   const handleCreateRoom = async () => {
-    setErrorMsg(null)
     setIsLoading(true)
     try {
       const room = await roomService.createRoom({
@@ -40,60 +60,84 @@ export default function CreateRoom() {
         roundCount: mode === 'progression' ? rounds : undefined,
         timerEnabled: turnTimer,
       })
+      toast.success('Battle room created successfully!', 'Room Created')
       navigate(`/rooms/${room.id}`)
     } catch (err: any) {
-      setErrorMsg(err?.message ?? 'Failed to create room.')
+      toast.error(err?.message ?? 'Failed to create room.', 'Room Creation Error')
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen w-full bg-w-bg text-w-text flex flex-col">
+    <div className="min-h-screen w-full bg-w-bg text-w-text flex flex-col justify-between select-none">
       <DashboardNavBar />
 
-      <main className="mx-auto w-full max-w-7xl flex-1 px-4 pt-6 pb-24 sm:px-6 lg:px-8 lg:pb-8 flex flex-col gap-6">
-        <div className="flex items-center justify-between border-b border-w-border/80 pb-4">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-24 lg:pb-8 flex flex-col gap-6">
+        
+        {/* Header Hero Banner */}
+        <header className="rounded-3xl border border-w-border bg-gradient-to-r from-w-surface via-w-bg to-w-surface p-6 shadow-tactile-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <span className="text-xs font-display font-bold uppercase tracking-widest text-w-orange">Arena Setup</span>
-            <h1 className="font-display text-2xl sm:text-3xl font-black text-w-text mt-0.5">
-              Create <span className="text-w-orange">Room</span>
+            <span className="text-[10px] sm:text-xs font-display font-black uppercase tracking-widest text-w-orange bg-w-orange/10 border border-w-orange/30 px-3 py-1 rounded-full">
+              Arena Setup 🛠️
+            </span>
+            <h1 className="font-display text-2xl sm:text-4xl font-black text-w-text mt-2">
+              Create <span className="text-w-orange">Battle Room</span>
             </h1>
+            <p className="text-xs sm:text-sm text-w-text-2 mt-1">
+              Configure room visibility, max player slots, round limits, and turn timers.
+            </p>
           </div>
-          <Link
-            to="/home"
-            aria-label="Back to Dashboard"
-            title="Back to Dashboard"
-            className="h-8 w-8 rounded-full border border-w-border bg-w-bg hover:bg-w-surface-2 hover:border-w-orange text-w-text-2 hover:text-w-orange transition-all flex items-center justify-center shadow-tactile-sm"
-          >
-            <svg className="h-4 w-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 12H5M12 19l-7-7 7-7" />
-            </svg>
-          </Link>
-        </div>
+
+          <div className="flex gap-2 flex-wrap">
+            <button
+              type="button"
+              onClick={() => applyPreset('quick1v1')}
+              className="rounded-xl border border-w-border bg-w-surface hover:border-w-orange px-3 py-2 text-xs font-display font-bold text-w-text transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange"
+            >
+              ⚡ 1v1 Duel
+            </button>
+            <button
+              type="button"
+              onClick={() => applyPreset('standard4')}
+              className="rounded-xl border border-w-border bg-w-surface hover:border-w-orange px-3 py-2 text-xs font-display font-bold text-w-text transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange"
+            >
+              👥 4 Players
+            </button>
+            <button
+              type="button"
+              onClick={() => applyPreset('mayhem8')}
+              className="rounded-xl border border-w-border bg-w-surface hover:border-w-orange px-3 py-2 text-xs font-display font-bold text-w-text transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange"
+            >
+              🔥 8 Mayhem
+            </button>
+          </div>
+        </header>
 
         {/* Widescreen Responsive Layout Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
           
           {/* Left Column: Room Details & Visibility (occupies 6 cols) */}
-          <section className="col-span-1 lg:col-span-6 rounded-2xl border border-w-border bg-w-surface p-5 shadow-md flex flex-col gap-4 h-full lg:overflow-y-auto pr-1">
-            <h3 className="font-display text-xs font-bold uppercase tracking-wider text-w-text-2 border-b border-w-border/40 pb-2">
-              General Information
+          <section className="col-span-1 lg:col-span-6 rounded-3xl border border-w-border bg-w-surface p-6 shadow-tactile-md flex flex-col gap-5">
+            <h3 className="font-display text-xs font-black uppercase tracking-wider text-w-text-2 border-b border-w-border/60 pb-3">
+              General Arena Information
             </h3>
             
             <label className="block">
-              <span className="mb-1.5 block text-xs font-semibold text-w-text-2">Room Name</span>
+              <span className="mb-1.5 block text-xs font-bold text-w-text-2">Room Name</span>
               <input
+                name="roomName"
                 autoComplete="off"
+                spellCheck={false}
                 value={roomName}
                 onChange={(e) => setRoomName(e.target.value)}
-                className="w-full rounded-xl border border-w-border bg-w-bg px-4 py-3 text-sm outline-none focus:border-w-warrior transition-colors"
+                className="w-full rounded-2xl border border-w-border bg-w-bg px-4 py-3 text-xs sm:text-sm text-w-text outline-none focus:border-w-orange transition-colors"
               />
             </label>
 
             <div>
-              <span className="mb-2 block text-xs font-semibold text-w-text-2">Room Visibility</span>
-              <div className="grid grid-cols-2 gap-2">
+              <span className="mb-2 block text-xs font-bold text-w-text-2">Room Visibility</span>
+              <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => {
@@ -101,13 +145,13 @@ export default function CreateRoom() {
                     setMaxPlayers(6)
                     setRoomName("Mkzay’s den of chaos")
                   }}
-                  className={`rounded-xl border px-3 py-3 text-sm font-semibold transition-all ${
+                  className={`rounded-2xl border px-4 py-3.5 text-xs font-display font-black transition-[colors,border-color,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange ${
                     visibility === 'private'
-                      ? 'border-w-warrior bg-w-surface-2 text-w-warrior shadow-tactile-sm'
-                      : 'border-w-border bg-w-bg text-w-text-2'
+                      ? 'border-w-orange bg-w-orange/10 text-w-orange shadow-tactile-sm'
+                      : 'border-w-border bg-w-bg text-w-text-2 hover:border-w-orange/40'
                   }`}
                 >
-                  Private Room
+                  🔒 Private Room
                 </button>
                 <button
                   type="button"
@@ -117,16 +161,16 @@ export default function CreateRoom() {
                     setMode('progression')
                     setRoomName("Weekend mayhem")
                   }}
-                  className={`rounded-xl border px-3 py-3 text-sm font-semibold transition-all ${
+                  className={`rounded-2xl border px-4 py-3.5 text-xs font-display font-black transition-[colors,border-color,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange ${
                     visibility === 'public'
-                      ? 'border-w-warrior bg-w-surface-2 text-w-warrior shadow-tactile-sm'
-                      : 'border-w-border bg-w-bg text-w-text-2'
+                      ? 'border-w-orange bg-w-orange/10 text-w-orange shadow-tactile-sm'
+                      : 'border-w-border bg-w-bg text-w-text-2 hover:border-w-orange/40'
                   }`}
                 >
-                  Public Room
+                  🌐 Public Room
                 </button>
               </div>
-              <p className="mt-2 text-[10px] text-w-text-3 leading-normal">
+              <p className="mt-2.5 text-[11px] text-w-text-3 leading-relaxed">
                 {visibility === 'private'
                   ? 'Only players with direct room invite codes can search and enter.'
                   : 'Public rooms are displayed openly in the global room browser feed.'}
@@ -135,19 +179,19 @@ export default function CreateRoom() {
           </section>
 
           {/* Right Column: Game settings & timers (occupies 6 cols) */}
-          <section className="col-span-1 lg:col-span-6 rounded-2xl border border-w-border bg-w-surface p-5 shadow-md flex flex-col gap-4 h-full lg:overflow-y-auto pr-1">
-            <h3 className="font-display text-xs font-bold uppercase tracking-wider text-w-text-2 border-b border-w-border/40 pb-2">
-              Rule Parameters
+          <section className="col-span-1 lg:col-span-6 rounded-3xl border border-w-border bg-w-surface p-6 shadow-tactile-md flex flex-col gap-5">
+            <h3 className="font-display text-xs font-black uppercase tracking-wider text-w-text-2 border-b border-w-border/60 pb-3">
+              Gameplay Parameters
             </h3>
 
             <div>
-              <span className="mb-2 block text-xs font-semibold text-w-text-2">Game Mode</span>
-              <div className="grid grid-cols-2 rounded-xl border border-w-border bg-w-bg p-1">
+              <span className="mb-2 block text-xs font-bold text-w-text-2">Game Mode</span>
+              <div className="grid grid-cols-2 rounded-2xl border border-w-border bg-w-bg p-1.5">
                 <button
                   type="button"
                   onClick={() => setMode('classic')}
-                  className={`rounded-lg px-3 py-2 text-xs font-bold transition-all ${
-                    mode === 'classic' ? 'bg-w-warrior text-w-text' : 'text-w-text-2 hover:text-w-text'
+                  className={`rounded-xl px-3 py-2.5 text-xs font-display font-black transition-all ${
+                    mode === 'classic' ? 'bg-w-orange text-w-surface shadow-tactile-sm' : 'text-w-text-2 hover:text-w-text'
                   }`}
                 >
                   Classic Whot
@@ -155,8 +199,8 @@ export default function CreateRoom() {
                 <button
                   type="button"
                   onClick={() => setMode('progression')}
-                  className={`rounded-lg px-3 py-2 text-xs font-bold transition-all ${
-                    mode === 'progression' ? 'bg-w-warrior text-w-text' : 'text-w-text-2 hover:text-w-text'
+                  className={`rounded-xl px-3 py-2.5 text-xs font-display font-black transition-all ${
+                    mode === 'progression' ? 'bg-w-orange text-w-surface shadow-tactile-sm' : 'text-w-text-2 hover:text-w-text'
                   }`}
                 >
                   Progression
@@ -167,14 +211,14 @@ export default function CreateRoom() {
             {/* Stepper inputs */}
             <div className="space-y-3">
               {mode === 'progression' && (
-                <div className="flex items-center justify-between rounded-xl border border-w-border bg-w-bg px-4 py-2.5">
-                  <span className="text-xs font-semibold">Number of rounds</span>
+                <div className="flex items-center justify-between rounded-2xl border border-w-border/60 bg-w-bg px-4 py-3">
+                  <span className="text-xs font-bold text-w-text">Number of rounds</span>
                   <StepperControl value={rounds} onIncrement={incrementRounds} onDecrement={decrementRounds} />
                 </div>
               )}
 
-              <div className="flex items-center justify-between rounded-xl border border-w-border bg-w-bg px-4 py-2.5">
-                <span className="text-xs font-semibold">Max player slots</span>
+              <div className="flex items-center justify-between rounded-2xl border border-w-border/60 bg-w-bg px-4 py-3">
+                <span className="text-xs font-bold text-w-text">Max player slots</span>
                 <StepperControl
                   value={maxPlayers}
                   onIncrement={incrementMaxPlayers}
@@ -184,9 +228,9 @@ export default function CreateRoom() {
             </div>
 
             {/* Turn limit switch */}
-            <div className="flex items-center justify-between rounded-xl border border-w-border bg-w-bg px-4 py-3">
+            <div className="flex items-center justify-between rounded-2xl border border-w-border/60 bg-w-bg px-4 py-3.5">
               <div>
-                <p className="text-xs font-semibold">20 second turn limit</p>
+                <p className="text-xs font-bold text-w-text">20 Second Turn Limit</p>
                 <p className="text-[10px] text-w-text-3 mt-0.5">
                   {isPublic ? 'Forced enabled for public rooms' : 'Auto-skips idle player turns'}
                 </p>
@@ -197,12 +241,12 @@ export default function CreateRoom() {
                 aria-checked={isTurnTimerOn}
                 disabled={isPublic}
                 onClick={() => setTurnTimer((prev) => !prev)}
-                className={`h-6 w-11 rounded-full border flex items-center p-[2px] transition-colors duration-200 focus:outline-none ${
-                  isTurnTimerOn ? 'border-w-warrior bg-w-warrior' : 'border-w-border bg-[#D8CCBC]'
+                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-[colors,box-shadow] duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange ${
+                  isTurnTimerOn ? 'bg-w-orange' : 'bg-w-surface-2'
                 } ${isPublic ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}`}
               >
-                <div
-                  className={`h-4 w-4 rounded-full bg-w-text transition-transform duration-200 transform ${
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-w-text shadow ring-0 transition duration-200 ease-in-out ${
                     isTurnTimerOn ? 'translate-x-5' : 'translate-x-0'
                   }`}
                 />
@@ -211,32 +255,24 @@ export default function CreateRoom() {
           </section>
         </div>
 
-        {/* Error Alert Display */}
-        {errorMsg && (
-          <div className="mt-6 w-full max-w-sm mx-auto rounded-xl border border-w-danger/30 bg-w-danger/5 p-3 text-xs text-w-danger font-semibold text-center flex items-center justify-center gap-2">
-            <span>⚠️</span>
-            <span>{errorMsg}</span>
-          </div>
-        )}
-
         {/* Submit action */}
-        <div className="mt-8 flex justify-center">
+        <div className="mt-4 flex justify-center">
           <button
             type="button"
             disabled={isLoading}
             onClick={handleCreateRoom}
-            className="w-full max-w-sm rounded-xl bg-w-warrior hover:bg-w-warrior/95 px-5 py-3.5 font-display text-sm font-bold text-w-text shadow-tactile-md hover:scale-[1.01] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full max-w-sm rounded-2xl bg-gradient-to-r from-w-orange to-w-yellow hover:from-w-orange/95 hover:to-w-yellow/95 px-6 py-4 font-display text-sm font-black text-w-surface shadow-tactile-md hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-w-orange transition-[transform,opacity,background-color] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isLoading ? (
               <>
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-w-text" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-w-surface" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                Creating Lobby...
+                Creating Lobby…
               </>
             ) : (
-              'Create and Host Room'
+              'Create & Launch Room Arena'
             )}
           </button>
         </div>

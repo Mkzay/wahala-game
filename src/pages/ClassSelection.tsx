@@ -123,7 +123,8 @@ export default function ClassSelection() {
               key={details.id}
               type="button"
               onClick={() => setSelected(details.id)}
-              className={`rounded-2xl border p-5 text-left transition-all duration-300 flex flex-col justify-between min-h-[360px] group ${
+              aria-label={`Select ${details.id} class`}
+              className={`rounded-2xl border p-5 text-left transition-[transform,border-color,box-shadow] duration-300 flex flex-col justify-between min-h-[360px] group focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-w-orange ${
                 isSelected ? details.glow : `${details.bg} ${details.border}`
               } hover:-translate-y-2`}
             >
@@ -138,10 +139,10 @@ export default function ClassSelection() {
                   </span>
                 </div>
 
-                <h3 className="mt-4 font-display text-lg font-black tracking-wide text-w-text">
+                <h3 className="mt-4 font-display text-lg font-black tracking-wide text-w-text text-balance">
                   {details.id}
                 </h3>
-                <p className="mt-1.5 text-xs text-w-text-2 leading-relaxed italic">
+                <p className="mt-1.5 text-xs text-w-text-2 leading-relaxed italic line-clamp-3">
                   "{details.lore}"
                 </p>
               </div>
@@ -190,7 +191,7 @@ export default function ClassSelection() {
           type="button"
           disabled={!selected}
           onClick={() => setGamePhase('board')}
-          className={`w-full max-w-sm rounded-xl py-3 px-6 font-display text-sm font-bold transition-all duration-300 ${
+          className={`w-full max-w-sm rounded-xl py-3 px-6 font-display text-sm font-bold transition-[transform,background-color,border-color,box-shadow] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange ${
             selected
               ? 'bg-w-orange text-w-text shadow-tactile-md hover:scale-[1.02]'
               : 'border border-w-border bg-w-surface-2 text-w-text-3 cursor-not-allowed'

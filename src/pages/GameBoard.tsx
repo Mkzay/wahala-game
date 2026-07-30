@@ -6,7 +6,8 @@ import { GameCard } from '../components/game/GameCard'
 import { GameBoardTable } from '../components/game/GameBoardTable'
 import { AbilitiesPanel } from '../components/game/AbilitiesPanel'
 import type { CardSuit, CardType } from '../components/game/GameCard'
-import type { RuleType } from '../types/game'
+import { socketService } from '../services/socketService'
+import { toast } from '../store/toastStore'
 
 export default function GameBoard() {
   const { gameId = '' } = useParams()
@@ -27,8 +28,7 @@ export default function GameBoard() {
   const [_round] = useState<number>(2)
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null)
   const [shakingCardId, setShakingCardId] = useState<string | null>(null)
-  const [marketCount, setMarketCount] = useState<number>(24)
-  const [activeRules, setActiveRules] = useState<RuleType[]>(['light'])
+  const [marketCount] = useState<number>(24)
   const [currentTurnPlayerId, setCurrentTurnPlayerId] = useState<string | null>(localUserId)
   
   const [reactionEndsAt, setReactionEndsAt] = useState<number | null>(null)
@@ -130,112 +130,50 @@ export default function GameBoard() {
     return () => clearTimeout(timer)
   }, [currentTurnPlayerId, players, isConnected])
 
-  // Play a card logic
+  // Socket emission handlers
   const handlePlayCard = (card: CardType) => {
     if (currentTurnPlayerId !== localUserId) {
-      addLog('Cannot play card: it is not your turn!')
+      toast.warning('Wait for your turn! It is currently another player round.', 'Out of Turn')
       return
     }
 
-    // Check if card fits suit or value
     const matchSuit = activeCard?.suit === card.suit || card.suit === 'whot'
     const matchValue = activeCard?.value === card.value
 
     if (!matchSuit && !matchValue) {
-      addLog(`Cannot play ${card.suit.toUpperCase()} ${card.value}: card does not match active card.`)
+      setShakingCardId(card.id)
+      setTimeout(() => setShakingCardId(null), 450)
+      toast.error(`Cannot play ${card.suit.toUpperCase()} ${card.value}: card does not match active suit/value.`, 'Invalid Move')
       return
     }
 
-    // Play card
+    socketService.emit('card:play', {
+      gameId,
+      playerId: localUserId,
+      card,
+    })
+
+    // Local optimistic reaction window & hand filter
     setActiveCard(card)
     setMyHand((prev) => prev.filter((c) => c.id !== card.id))
-    addLog(`You played ${card.suit.toUpperCase()} ${card.value}`)
 
-    // Update your card count in players list
-    setPlayers((prev) =>
-      prev.map((p) =>
-        p.id === localUserId
-          ? { ...p, cardCount: Math.max(0, p.cardCount - 1) }
-          : p,
-      ),
-    )
-
-    // Trigger reaction window for special card plays
     if (card.value === 8 || card.suit === 'whot' || card.value === 2) {
       setReactionEndsAt(Date.now() + 5000)
-      addLog('Special card played: Reaction window opened for 5 seconds!')
     }
-
-    // Pass turn
-    const currentIndex = players.findIndex((p) => p.id === localUserId)
-    const nextIndex = (currentIndex + 1) % players.length
-    const nextPlayer = players[nextIndex]
-    setCurrentTurnPlayerId(nextPlayer.id)
-    addLog(`It is now ${nextPlayer.username}'s turn.`)
   }
 
-  // Draw card logic
   const handleDrawCard = () => {
     if (currentTurnPlayerId !== localUserId) return
-
-    const suits: CardSuit[] = ['circle', 'triangle', 'star', 'cross', 'square']
-    const randSuit = suits[Math.floor(Math.random() * suits.length)]
-    const randValue = Math.floor(Math.random() * 14) + 1
-    const newCard: CardType = {
-      id: `card-${Date.now()}`,
-      suit: randSuit,
-      value: randValue,
-    }
-
-    setMyHand((prev) => [...prev, newCard])
-    setMarketCount((prev) => Math.max(0, prev - 1))
-    addLog('You drew a card from the market')
-
-    // Update your player card count
-    setPlayers((prev) =>
-      prev.map((p) =>
-        p.id === localUserId
-          ? { ...p, cardCount: p.cardCount + 1 }
-          : p,
-      ),
-    )
-
-    // Pass turn
-    const currentIndex = players.findIndex((p) => p.id === localUserId)
-    const nextIndex = (currentIndex + 1) % players.length
-    const nextPlayer = players[nextIndex]
-    setCurrentTurnPlayerId(nextPlayer.id)
-    addLog(`It is now ${nextPlayer.username}'s turn.`)
+    socketService.emit('draw:card', { gameId, playerId: localUserId })
   }
 
-  // Reaction response handler
   const handleReactionResponse = (agree: boolean) => {
     setReactionEndsAt(null)
-    if (agree) {
-      addLog('You counter reacted: HOLD ON!')
-      // Draw or logic change
-    } else {
-      addLog('You passed on the reaction window.')
-    }
+    socketService.emit('reaction:respond', { gameId, playerId: localUserId, agree })
   }
 
-  // Ability activation handler
   const handleActivateAbility = (abilityName: string) => {
-    addLog(`You activated ability: ${abilityName}!`)
-    if (abilityName === 'Chaos Leap') {
-      const suits: CardSuit[] = ['circle', 'triangle', 'star', 'cross', 'square']
-      const randSuit = suits[Math.floor(Math.random() * suits.length)]
-      if (activeCard) {
-        setActiveCard({ ...activeCard, suit: randSuit })
-      }
-      addLog(`Chaos Leap: Suit randomly swapped to ${randSuit.toUpperCase()}`)
-      
-      // Update rules as side effect
-      if (!activeRules.includes('chaotic')) {
-        setActiveRules((prev) => [...prev, 'chaotic' as RuleType].slice(-2))
-        addLog('Chaos Leap triggered Chaotic dynamic rule!')
-      }
-    }
+    socketService.emit('ability:use', { gameId, playerId: localUserId, abilityName })
   }
 
   return (
@@ -273,11 +211,11 @@ export default function GameBoard() {
         </div>
 
         {/* Floating Player Hand Bar (Fixed at Bottom of Viewport) */}
-        <div className="fixed bottom-0 left-0 right-0 z-30 bg-gradient-to-t from-w-bg via-w-bg/95 to-transparent backdrop-blur-md border-t border-w-border/40 pt-1.5 pb-2 px-2 shadow-[0_-10px_30px_rgba(0,0,0,0.4)]">
+        <div className="fixed bottom-0 left-0 right-0 z-30 bg-gradient-to-t from-w-bg via-w-bg/95 to-transparent backdrop-blur-md border-t border-w-border/40 pt-3 pb-2 px-2 shadow-[0_-10px_30px_rgba(0,0,0,0.4)]">
           <div className="max-w-4xl mx-auto flex flex-col items-center gap-0.5">
             
             {/* Hand Header & 2-Tap Guide Badge */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 mb-1">
               {selectedCardId ? (
                 <span className="text-[10px] bg-w-orange text-w-text font-bold px-3 py-0.5 rounded-full shadow-md animate-bounce">
                   Tap card again to play
@@ -297,7 +235,7 @@ export default function GameBoard() {
             </div>
 
             {/* Floating Hand Fan Container */}
-            <div className="relative w-full overflow-x-auto overflow-y-hidden no-scrollbar pt-1 pb-0 px-2 min-h-[110px] sm:min-h-[145px]">
+            <div className="relative w-full overflow-x-auto overflow-y-visible no-scrollbar pt-6 sm:pt-8 pb-3 px-4 min-h-[140px] sm:min-h-[180px]">
               {myHand.length === 0 ? (
                 <div className="text-center p-3 text-w-text-3 text-xs border border-dashed border-w-border rounded-xl w-full">
                   No cards in hand. Click the market deck to draw!
@@ -314,11 +252,11 @@ export default function GameBoard() {
                         activeCard?.value === card.value)
 
                     const angle = (idx - (myHand.length - 1) / 2) * 3
-                    // On mobile: unselected cards translate down (+16px peek). On iPad/Desktop: standard height
+                    // On mobile: unselected cards translate down (+12px peek). On iPad/Desktop: standard height
                     const isMobile = typeof window !== 'undefined' && window.innerWidth < 640
                     const baseTranslateY = isMobile
-                      ? (isSelected ? -32 : Math.abs(idx - (myHand.length - 1) / 2) * 2 + 16)
-                      : (isSelected ? -24 : Math.abs(idx - (myHand.length - 1) / 2) * 2)
+                      ? (isSelected ? -24 : Math.abs(idx - (myHand.length - 1) / 2) * 2 + 12)
+                      : (isSelected ? -22 : Math.abs(idx - (myHand.length - 1) / 2) * 2)
 
                     const handleCardClick = () => {
                       if (!isPlayable) {
@@ -388,7 +326,7 @@ export default function GameBoard() {
               CONNECTION INTERRUPTED
             </h2>
             <p className="mt-1 text-xs text-w-text-2 leading-relaxed">
-              Lost link to room. Reconnecting automatically in <span className="font-display font-bold text-w-orange">{reconnectCountdown}s</span>...
+              Lost link to room. Reconnecting automatically in <span className="font-display font-bold text-w-orange">{reconnectCountdown}s</span>…
             </p>
 
             <button

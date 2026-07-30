@@ -74,7 +74,7 @@ export default function Spectator() {
             to="/home"
             aria-label="Exit Arena"
             title="Exit Arena"
-            className="h-8 w-8 rounded-full border border-w-border bg-w-bg hover:bg-w-surface-2 hover:border-w-orange text-w-text-2 hover:text-w-orange transition-all flex items-center justify-center shadow-tactile-sm"
+            className="h-8 w-8 rounded-full border border-w-border bg-w-bg hover:bg-w-surface-2 hover:border-w-orange text-w-text-2 hover:text-w-orange transition-[colors,border-color] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange flex items-center justify-center shadow-tactile-sm"
           >
             <svg className="h-4 w-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 12H5M12 19l-7-7 7-7" />

@@ -17,6 +17,7 @@ export default function Auth() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [username, setUsername] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -171,7 +172,7 @@ export default function Auth() {
 
           {/* Error Banner */}
           {errorMsg && (
-            <div className="mb-4 rounded-xl border border-w-danger/30 bg-w-danger/5 p-3.5 text-xs text-w-danger font-semibold flex items-center gap-2">
+            <div aria-live="polite" className="mb-4 rounded-xl border border-w-danger/30 bg-w-danger/5 p-3.5 text-xs text-w-danger font-semibold flex items-center gap-2">
               <span className="text-sm">⚠️</span>
               <span>{errorMsg}</span>
             </div>
@@ -186,11 +187,13 @@ export default function Auth() {
                 </span>
                 <input
                   type="text"
+                  name="username"
                   placeholder="e.g. Mkzay"
                   autoComplete="username"
+                  spellCheck={false}
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full rounded-xl border border-w-border bg-w-surface px-4 py-3 text-xs outline-none focus:border-w-warrior transition-colors"
+                  className="w-full rounded-xl border border-w-border bg-w-surface px-4 py-3 text-xs outline-none focus-visible:ring-2 focus-visible:ring-w-warrior focus-visible:border-w-warrior transition-colors"
                 />
               </label>
             )}
@@ -201,11 +204,13 @@ export default function Auth() {
               </span>
               <input
                 type="email"
+                name="email"
                 placeholder="e.g. mkzay@gmail.com"
                 autoComplete="email"
+                spellCheck={false}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-xl border border-w-border bg-w-surface px-4 py-3 text-xs outline-none focus:border-w-warrior transition-colors"
+                className="w-full rounded-xl border border-w-border bg-w-surface px-4 py-3 text-xs outline-none focus-visible:ring-2 focus-visible:ring-w-warrior focus-visible:border-w-warrior transition-colors"
               />
             </label>
 
@@ -213,26 +218,50 @@ export default function Auth() {
               <span className="mb-1 block text-[10px] font-bold uppercase tracking-wider text-w-text-2">
                 Password
               </span>
-              <input
-                type="password"
-                placeholder="••••••••••••"
-                autoComplete={activeTab === 'signin' ? 'current-password' : 'new-password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-xl border border-w-border bg-w-surface px-4 py-3 text-xs outline-none focus:border-w-warrior transition-colors"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  placeholder="••••••••••••"
+                  autoComplete={activeTab === 'signin' ? 'current-password' : 'new-password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded-xl border border-w-border bg-w-surface pl-4 pr-10 py-3 text-xs outline-none focus-visible:ring-2 focus-visible:ring-w-warrior focus-visible:border-w-warrior transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-w-text-3 hover:text-w-text p-1 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-w-orange rounded-lg"
+                >
+                  {showPassword ? (
+                    <svg className="h-4 w-4 fill-current text-w-orange" viewBox="0 0 24 24">
+                      <path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.44-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.17c0-1.66-1.34-3-3-3l-.17.02z" />
+                    </svg>
+                  ) : (
+                    <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
+                      <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
             </label>
 
             {activeTab === 'signin' && (
-              <div className="text-right text-[11px] font-semibold text-w-warrior cursor-pointer hover:underline">
-                Forgot password?
+              <div className="text-right">
+                <button
+                  type="button"
+                  className="text-[11px] font-semibold text-w-warrior hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-warrior rounded"
+                >
+                  Forgot password?
+                </button>
               </div>
             )}
 
             <button
               type="submit"
               disabled={isLoading}
-              className="mt-6 w-full rounded-xl bg-w-orange hover:bg-w-orange/95 px-4 py-3.5 font-display text-xs font-bold text-w-text shadow-tactile-md hover:scale-[1.01] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="mt-6 w-full rounded-xl bg-w-orange hover:bg-w-orange/95 px-4 py-3.5 font-display text-xs font-bold text-w-text shadow-tactile-md hover:scale-[1.01] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange transition-[transform,opacity,background-color] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <>
@@ -240,7 +269,7 @@ export default function Auth() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
-                  Processing...
+                  Processing…
                 </>
               ) : (
                 activeTab === 'signin' ? 'Sign In to Account' : 'Create Account'
@@ -258,13 +287,15 @@ export default function Auth() {
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
-              className="rounded-xl border border-w-border bg-w-surface hover:border-w-orange/40 px-3 py-2.5 text-xs font-bold transition-colors"
+              aria-label="Sign in with Google"
+              className="rounded-xl border border-w-border bg-w-surface hover:border-w-orange/40 px-3 py-2.5 text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange"
             >
               Google
             </button>
             <button
               type="button"
-              className="rounded-xl border border-w-border bg-w-surface hover:border-w-orange/40 px-3 py-2.5 text-xs font-bold transition-colors"
+              aria-label="Sign in with Apple"
+              className="rounded-xl border border-w-border bg-w-surface hover:border-w-orange/40 px-3 py-2.5 text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange"
             >
               Apple
             </button>
@@ -276,7 +307,7 @@ export default function Auth() {
             <button
               type="button"
               onClick={() => setActiveTab(activeTab === 'signin' ? 'signup' : 'signin')}
-              className="font-bold text-w-orange hover:underline"
+              className="font-bold text-w-orange hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange rounded"
             >
               {activeTab === 'signin' ? 'Sign up' : 'Sign in'}
             </button>
@@ -291,7 +322,8 @@ export default function Auth() {
             <button
               type="button"
               onClick={handlePreview}
-              className="text-xs text-w-yellow underline font-semibold hover:text-w-yellow/85"
+              aria-label="Continue as Guest to play preview"
+              className="text-xs text-w-yellow underline font-semibold hover:text-w-yellow/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-yellow rounded"
             >
               Skip auth (Preview Home) →
             </button>
