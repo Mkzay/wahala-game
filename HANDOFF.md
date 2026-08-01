@@ -27,6 +27,7 @@ Before making any changes to `wahala-game`, read the context documents in this e
   - **Phase 2 (Socket Adapter & Stores)**: `socketService.mock.ts` dev adapter created, `gameStore.ts` & `lobbyStore.ts` reducers wired, `useGameSocket.ts` bound, unit tests passing.
   - **Phase 3 (TanStack Query & RoomBrowser)**: `useRooms.ts` updated with `useQuery`, search debouncing, and filter state. `RoomBrowser.tsx` decoupled. Unit tests passing.
   - **Phase 4 (Component Decoupling & Toast System)**: `GameBoard.tsx` & `Lobby.tsx` decoupled from local mock loops to socket emissions. Option A Custom Glassmorphic Toast System implemented (`toastStore.ts` + `ToastContainer.tsx`). `routes.test.tsx` route guards verified.
+  - **Dependency & Node Modules Fix (`7c3dce1`)**: Restored clean local `node_modules` via `npm install`, added production dependencies to `package.json`, resolved TypeScript strict mode interface alignment across `GameBoardTable`, `Spectator`, `GameSidebar`, and `gameService`.
 
 ### Explicitly Deferred Screens (Require Follow-Up Plan Maps)
 The following screens have completed UI redesigns but are deferred for server hook/store decoupling in subsequent phase maps:
