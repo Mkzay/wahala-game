@@ -1,28 +1,27 @@
 import { api } from './api'
-import type { APIUser } from '../types/api'
+import type { APIProfile } from '../types/api'
 import type { UserProfile } from '../types/user'
 
-export function transformProfile(raw: APIUser): UserProfile {
+export function transformProfile(raw: APIProfile): UserProfile {
   return {
     id: raw.id,
     username: raw.username,
-    email: raw.email ?? '',
-    avatarUrl: raw.avatar_url ?? '',
-    coins: raw.coins ?? 1250,
-    xp: raw.xp ?? 750,
-    level: raw.level ?? 4,
-    favoriteClass: raw.favorite_class ?? 'Mastermind',
+    email: raw.email,
+    coins: raw.coins,
+    xp: raw.totalXp,
+    level: raw.overallLevel,
+    title: raw.title,
   }
 }
 
 export const profileService = {
-  async getProfile(userId: string): Promise<UserProfile> {
-    const response = await api.get<APIUser>(`/profile/${userId}`)
+  async getMyProfile(): Promise<UserProfile> {
+    const response = await api.get<APIProfile>('/profile/me')
     return transformProfile(response.data)
   },
 
   async updateUsername(newUsername: string): Promise<UserProfile> {
-    const response = await api.patch<APIUser>('/profile/username', { username: newUsername })
+    const response = await api.patch<APIProfile>('/profile/username', { username: newUsername })
     return transformProfile(response.data)
   },
 }

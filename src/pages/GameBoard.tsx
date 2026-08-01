@@ -1,139 +1,46 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useGameSocket } from '../hooks/useGameSocket'
 import { useGamePhaseRouting } from '../hooks/useGamePhaseRouting'
+import { useGameStore } from '../store/gameStore'
+import { useAuthStore } from '../store/authStore'
+import { socketService } from '../services/socketService'
+import { mapCard } from '../utils/cardMapper'
 import { GameCard } from '../components/game/GameCard'
 import { GameBoardTable } from '../components/game/GameBoardTable'
 import { AbilitiesPanel } from '../components/game/AbilitiesPanel'
-import type { CardSuit, CardType } from '../components/game/GameCard'
-import { socketService } from '../services/socketService'
+import type { CardType } from '../components/game/GameCard'
 import { toast } from '../store/toastStore'
 
 export default function GameBoard() {
   const { gameId = '' } = useParams()
-  
-  // Real socket integration (will fallback to mock if backend is down)
-  const { isConnected: realIsConnected } = useGameSocket({ gameId, enabled: gameId.length > 0 })
+
+  useGameSocket({ gameId, enabled: gameId.length > 0 })
   useGamePhaseRouting()
 
-  // User details
-  const localUserId = 'you-id'
-  const localUsername = 'Mkzay'
+  const gameState = useGameStore((s) => s.gameState)
+  const isConnected = useGameStore((s) => s.isConnected)
+  const user = useAuthStore((s) => s.user)
 
-  // --- MOCK INTERACTIVE GAME LOOP STATE ---
-  const [isConnected, setIsConnected] = useState<boolean>(true)
-  const [showDisconnectOverlay, setShowDisconnectOverlay] = useState<boolean>(false)
-  const [reconnectCountdown, setReconnectCountdown] = useState<number>(3)
-
-  const [_round] = useState<number>(2)
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null)
   const [shakingCardId, setShakingCardId] = useState<string | null>(null)
-  const [marketCount] = useState<number>(24)
-  const [currentTurnPlayerId, setCurrentTurnPlayerId] = useState<string | null>(localUserId)
-  
-  const [reactionEndsAt, setReactionEndsAt] = useState<number | null>(null)
 
-  // Player standings/state
-  const [players, setPlayers] = useState([
-    { id: localUserId, username: `${localUsername} (You)`, points: 120, cardCount: 5, status: 'active' as const },
-    { id: 'esther-id', username: 'Esther', points: 95, cardCount: 6, status: 'active' as const },
-    { id: 'happiness-id', username: 'Happiness', points: 154, cardCount: 4, status: 'active' as const },
-    { id: 'roseanne-id', username: 'Roseanne', points: 88, cardCount: 8, status: 'active' as const },
-  ])
+  const userId = user?.id ?? ''
+  const players = gameState?.players ?? []
+  const activeCard = gameState?.activeCard ? mapCard(gameState.activeCard) : null
+  const marketCount = gameState?.market?.length ?? 0
+  const rawHand = gameState?.playerHands?.[userId] ?? []
+  const myHand: CardType[] = rawHand.map(mapCard)
+  const currentTurnPlayerId = gameState?.currentTurnPlayerId ?? null
+  const isMyTurn = currentTurnPlayerId === userId
 
-  // Your cards in hand
-  const [myHand, setMyHand] = useState<CardType[]>([
-    { id: 'card-1', suit: 'circle', value: 7 },
-    { id: 'card-2', suit: 'star', value: 4 },
-    { id: 'card-3', suit: 'triangle', value: 12 },
-    { id: 'card-4', suit: 'cross', value: 5 },
-    { id: 'card-5', suit: 'whot', value: 20 },
-  ])
-
-  // Active discard pile card
-  const [activeCard, setActiveCard] = useState<CardType | null>({
-    id: 'card-init',
-    suit: 'circle',
-    value: 3,
-  })
-
-  // Match Feed Logs helper (logs removed from ongoing UI)
-  const addLog = (_text: string) => {
-    // No-op logger for game events
+  const requestState = () => {
+    socketService.emit('game:state:request', { gameId })
   }
 
-  // Handle local connection sync
-  useEffect(() => {
-    setIsConnected(realIsConnected)
-  }, [realIsConnected])
-
-  // Reconnection simulation triggers
-  useEffect(() => {
-    if (!isConnected) {
-      setShowDisconnectOverlay(true)
-      setReconnectCountdown(3)
-      const counter = setInterval(() => {
-        setReconnectCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(counter)
-            setIsConnected(true)
-            setShowDisconnectOverlay(false)
-            addLog('WebSocket reconnected. Game state synched with server.')
-            return 3
-          }
-          return prev - 1
-        })
-      }, 1000)
-      return () => clearInterval(counter)
-    }
-  }, [isConnected])
-
-  // Automated AI simulation loop
-  useEffect(() => {
-    if (currentTurnPlayerId === localUserId || !isConnected) return
-
-    const timer = setTimeout(() => {
-      const activePlayer = players.find((p) => p.id === currentTurnPlayerId)
-      if (!activePlayer) return
-
-      // AI Logic: plays card or draws
-      const randValue = Math.floor(Math.random() * 14) + 1
-      const suits: CardSuit[] = ['circle', 'triangle', 'star', 'cross', 'square']
-      const randSuit = suits[Math.floor(Math.random() * suits.length)]
-      
-      const newCard: CardType = {
-        id: `card-ai-${Date.now()}`,
-        suit: randSuit,
-        value: randValue,
-      }
-
-      setActiveCard(newCard)
-      addLog(`${activePlayer.username} played ${randSuit.toUpperCase()} ${randValue}`)
-
-      // Update AI card count
-      setPlayers((prev) =>
-        prev.map((p) =>
-          p.id === activePlayer.id
-            ? { ...p, cardCount: Math.max(1, p.cardCount - 1) }
-            : p,
-        ),
-      )
-
-      // Move turn forward
-      const currentIndex = players.findIndex((p) => p.id === currentTurnPlayerId)
-      const nextIndex = (currentIndex + 1) % players.length
-      const nextPlayer = players[nextIndex]
-      setCurrentTurnPlayerId(nextPlayer.id)
-      addLog(`It is now ${nextPlayer.username === `${localUsername} (You)` ? 'your' : nextPlayer.username + "'s"} turn.`)
-    }, 4000)
-
-    return () => clearTimeout(timer)
-  }, [currentTurnPlayerId, players, isConnected])
-
-  // Socket emission handlers
   const handlePlayCard = (card: CardType) => {
-    if (currentTurnPlayerId !== localUserId) {
-      toast.warning('Wait for your turn! It is currently another player round.', 'Out of Turn')
+    if (!isMyTurn) {
+      toast.warning('Wait for your turn!', 'Out of Turn')
       return
     }
 
@@ -147,39 +54,50 @@ export default function GameBoard() {
       return
     }
 
-    socketService.emit('card:play', {
-      gameId,
-      playerId: localUserId,
-      card,
-    })
-
-    // Local optimistic reaction window & hand filter
-    setActiveCard(card)
-    setMyHand((prev) => prev.filter((c) => c.id !== card.id))
-
-    if (card.value === 8 || card.suit === 'whot' || card.value === 2) {
-      setReactionEndsAt(Date.now() + 5000)
-    }
+    socketService.emit('game:card:play', { gameId, cardId: card.id })
+    setSelectedCardId(null)
+    setTimeout(requestState, 300)
   }
 
   const handleDrawCard = () => {
-    if (currentTurnPlayerId !== localUserId) return
-    socketService.emit('draw:card', { gameId, playerId: localUserId })
+    if (!isMyTurn) return
+    socketService.emit('game:card:draw', { gameId })
+    setTimeout(requestState, 300)
   }
 
   const handleReactionResponse = (agree: boolean) => {
-    setReactionEndsAt(null)
-    socketService.emit('reaction:respond', { gameId, playerId: localUserId, agree })
+    socketService.emit('reaction:respond', { gameId, playerId: userId, agree })
   }
 
   const handleActivateAbility = (abilityName: string) => {
-    socketService.emit('ability:use', { gameId, playerId: localUserId, abilityName })
+    socketService.emit('game:ability:use', { gameId, abilityId: abilityName })
+  }
+
+  const isPlayable = (card: CardType) => {
+    if (!isMyTurn) return false
+    if (!activeCard) return true
+    return activeCard.suit === card.suit || card.suit === 'whot' || activeCard.value === card.value
+  }
+
+  if (!gameState) {
+    return (
+      <div className="min-h-screen w-full bg-w-bg text-w-text flex flex-col items-center justify-center gap-4 select-none">
+        <div className="h-12 w-12 rounded-2xl bg-gradient-to-tr from-w-orange to-w-yellow flex items-center justify-center font-display text-2xl font-black text-w-surface shadow-tactile-lg animate-pulse">
+          ⚡
+        </div>
+        <svg className="h-8 w-8 animate-spin text-w-orange" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+          <path className="opacity-100" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
+        <p className="font-display text-xs font-bold text-w-text-3 uppercase tracking-widest">
+          Loading Game Arena…
+        </p>
+      </div>
+    )
   }
 
   return (
     <div className="min-h-screen w-full bg-w-bg text-w-text flex flex-col justify-between relative overflow-x-hidden p-2 sm:p-4">
-      
-      {/* Floating Leave Table Back Icon Button */}
       <div className="absolute top-3 left-3 z-40">
         <Link
           to="/home"
@@ -193,28 +111,22 @@ export default function GameBoard() {
         </Link>
       </div>
 
-      {/* Main Section: Full-Screen Felt Board Arena */}
       <section className="flex-1 w-full max-w-6xl mx-auto px-2 sm:px-6 pt-3 pb-36 flex flex-col items-stretch relative">
-        
-        {/* Felt Board Table Component (Fills Main Viewport) */}
         <div className="flex-1 w-full flex flex-col">
           <GameBoardTable
             players={players}
             currentTurnPlayerId={currentTurnPlayerId}
             activeCard={activeCard}
             marketCount={marketCount}
-            reactionWindowEndsAtMs={reactionEndsAt}
+            reactionWindowEndsAtMs={gameState.reactionWindow?.expiresAtMs ?? null}
             onDrawCard={handleDrawCard}
             onReactionResponse={handleReactionResponse}
-            localUserId={localUserId}
+            localUserId={userId}
           />
         </div>
 
-        {/* Floating Player Hand Bar (Fixed at Bottom of Viewport) */}
         <div className="fixed bottom-0 left-0 right-0 z-30 bg-gradient-to-t from-w-bg via-w-bg/95 to-transparent backdrop-blur-md border-t border-w-border/40 pt-3 pb-2 px-2 shadow-[0_-10px_30px_rgba(0,0,0,0.4)]">
           <div className="max-w-4xl mx-auto flex flex-col items-center gap-0.5">
-            
-            {/* Hand Header & 2-Tap Guide Badge */}
             <div className="flex items-center gap-2 mb-1">
               {selectedCardId ? (
                 <span className="text-[10px] bg-w-orange text-w-text font-bold px-3 py-0.5 rounded-full shadow-md animate-bounce">
@@ -225,7 +137,7 @@ export default function GameBoard() {
                   <span className="text-[10px] font-display font-extrabold uppercase tracking-widest text-w-text-3">
                     Your Hand ({myHand.length})
                   </span>
-                  {currentTurnPlayerId === localUserId && (
+                  {isMyTurn && (
                     <span className="text-[10px] bg-w-orange/15 border border-w-orange/30 px-2 py-0.5 rounded-full text-w-orange font-bold animate-pulse">
                       It's Your Turn!
                     </span>
@@ -234,7 +146,6 @@ export default function GameBoard() {
               )}
             </div>
 
-            {/* Floating Hand Fan Container */}
             <div className="relative w-full overflow-x-auto overflow-y-visible no-scrollbar pt-6 sm:pt-8 pb-3 px-4 min-h-[140px] sm:min-h-[180px]">
               {myHand.length === 0 ? (
                 <div className="text-center p-3 text-w-text-3 text-xs border border-dashed border-w-border rounded-xl w-full">
@@ -245,22 +156,15 @@ export default function GameBoard() {
                   {myHand.map((card, idx) => {
                     const isSelected = selectedCardId === card.id
                     const isShaking = shakingCardId === card.id
-                    const isPlayable =
-                      currentTurnPlayerId === localUserId &&
-                      (activeCard?.suit === card.suit ||
-                        card.suit === 'whot' ||
-                        activeCard?.value === card.value)
-
+                    const playable = isPlayable(card)
                     const angle = (idx - (myHand.length - 1) / 2) * 3
-                    // On mobile: unselected cards translate down (+12px peek). On iPad/Desktop: standard height
                     const isMobile = typeof window !== 'undefined' && window.innerWidth < 640
                     const baseTranslateY = isMobile
                       ? (isSelected ? -24 : Math.abs(idx - (myHand.length - 1) / 2) * 2 + 12)
                       : (isSelected ? -22 : Math.abs(idx - (myHand.length - 1) / 2) * 2)
 
                     const handleCardClick = () => {
-                      if (!isPlayable) {
-                        // Unplayable card clicked -> Drop previous selection & Nod shake!
+                      if (!playable) {
                         setSelectedCardId(null)
                         setShakingCardId(card.id)
                         setTimeout(() => setShakingCardId(null), 450)
@@ -268,11 +172,9 @@ export default function GameBoard() {
                       }
 
                       if (isSelected) {
-                        // 2nd tap on the SAME card: Play it!
                         handlePlayCard(card)
                         setSelectedCardId(null)
                       } else {
-                        // 1st tap on a NEW card: Drops previous card & Raises the new card UP!
                         setSelectedCardId(card.id)
                       }
                     }
@@ -289,13 +191,13 @@ export default function GameBoard() {
                       >
                         <GameCard
                           card={card}
-                          isPlayable={isPlayable}
+                          isPlayable={playable}
                           isShaking={isShaking}
                           onClick={handleCardClick}
-                          size={isMobile ? "sm" : "md"}
+                          size={isMobile ? 'sm' : 'md'}
                         />
                       </div>
-                    );
+                    )
                   })}
                 </div>
               )}
@@ -303,37 +205,33 @@ export default function GameBoard() {
           </div>
         </div>
 
-        {/* Floating Action Power Orb + Glassmorphic Sheet Drawer Component */}
         <AbilitiesPanel
           classNameType="mastermind"
           onActivateAbility={handleActivateAbility}
-          isMyTurn={currentTurnPlayerId === localUserId}
+          isMyTurn={isMyTurn}
         />
       </section>
 
-      {/* Disconnection/Reconnecting Glassmorphic Overlay */}
-      {showDisconnectOverlay && (
+      {!isConnected && (
         <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-6 animate-fade-in">
           <div className="text-center max-w-sm p-6 rounded-3xl border border-w-border bg-w-surface shadow-[0_0_50px_rgba(226,75,74,0.1)]">
-            {/* pulsing danger icon */}
             <div className="h-16 w-16 mx-auto mb-4 bg-w-danger/10 border border-w-danger/25 text-w-danger rounded-full flex items-center justify-center animate-pulse">
               <svg className="h-8 w-8 fill-current" viewBox="0 0 24 24">
                 <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" />
               </svg>
             </div>
-            
+
             <h2 className="font-display text-lg font-bold text-w-text">
               CONNECTION INTERRUPTED
             </h2>
             <p className="mt-1 text-xs text-w-text-2 leading-relaxed">
-              Lost link to room. Reconnecting automatically in <span className="font-display font-bold text-w-orange">{reconnectCountdown}s</span>…
+              Lost link to room. Attempting to reconnect…
             </p>
 
             <button
               onClick={() => {
-                setIsConnected(true)
-                setShowDisconnectOverlay(false)
-                addLog('Manual reconnection forced.')
+                socketService.connect()
+                setTimeout(requestState, 500)
               }}
               className="mt-5 w-full rounded-xl bg-w-orange hover:bg-w-orange/90 px-4 py-2.5 text-xs font-display font-bold text-w-text shadow"
             >

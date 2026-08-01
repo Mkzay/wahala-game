@@ -5,18 +5,18 @@ import type { APIRoom } from '../types/api'
 describe('roomService - transformRoom', () => {
   it('correctly maps APIRoom properties to frontend Room domain model', () => {
     const rawApiRoom: APIRoom = {
-      room_id: 'room-1234-abcd',
-      room_name: 'Mkzay Den',
-      host: {
-        user_id: 'user-001',
-        username: 'Mkzay',
-      },
-      game_mode: 'classic',
+      id: 'room-1234-abcd',
+      code: 'WHL-ABCD',
+      name: 'Mkzay Den',
+      hostId: 'user-001',
+      hostUsername: 'Mkzay',
+      gameMode: 'classic',
       visibility: 'public',
-      current_players: 3,
-      max_players: 6,
+      maxPlayers: 6,
+      playerCount: 3,
+      roundCount: null,
+      timerEnabled: false,
       status: 'waiting',
-      created_at: '2026-07-30T00:00:00Z',
     }
 
     const room = transformRoom(rawApiRoom)
@@ -33,24 +33,30 @@ describe('roomService - transformRoom', () => {
     expect(room.status).toBe('waiting')
   })
 
-  it('handles missing host metadata gracefully with default fallbacks', () => {
+  it('passes through fields without transformation', () => {
     const rawApiRoom: APIRoom = {
-      room_id: 'room-9999-efgh',
-      room_name: 'Solo Room',
-      host: null as any,
-      game_mode: 'progression',
+      id: 'room-9999-efgh',
+      code: 'WHL-EFGH',
+      name: 'Solo Room',
+      hostId: 'user-002',
+      hostUsername: 'Player2',
+      gameMode: 'progression',
       visibility: 'private',
-      current_players: 1,
-      max_players: 4,
-      status: 'in_progress',
-      created_at: '2026-07-30T00:00:00Z',
+      maxPlayers: 4,
+      playerCount: 1,
+      roundCount: 5,
+      timerEnabled: true,
+      status: 'waiting',
     }
 
     const room = transformRoom(rawApiRoom)
 
     expect(room.id).toBe('room-9999-efgh')
-    expect(room.hostId).toBe('unknown')
-    expect(room.hostUsername).toBe('Host')
-    expect(room.status).toBe('in_progress')
+    expect(room.hostId).toBe('user-002')
+    expect(room.hostUsername).toBe('Player2')
+    expect(room.status).toBe('waiting')
+    expect(room.gameMode).toBe('progression')
+    expect(room.roundCount).toBe(5)
+    expect(room.timerEnabled).toBe(true)
   })
 })

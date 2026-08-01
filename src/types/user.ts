@@ -7,10 +7,9 @@ export interface AuthUser {
 export interface UserProfile {
   id: string
   username: string
-  email?: string
-  avatarUrl: string
+  email: string
   coins: number
   xp: number
   level: number
-  favoriteClass: string
+  title: string
 }

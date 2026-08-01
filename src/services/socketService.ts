@@ -1,21 +1,30 @@
 import { io, type Socket } from 'socket.io-client'
 import type { ISocketService } from '../types/socket'
 import { mockSocketService } from './socketService.mock'
+import { getAccessToken } from './api'
 
 class LiveSocketService implements ISocketService {
   private socket: Socket | null = null
 
-  public connect(): Socket | null {
+  public connect(gameId?: string): Socket | null {
     if (this.socket) {
       return this.socket
     }
 
     const wsUrl = import.meta.env.VITE_WS_URL || 'http://localhost:3001'
+
+    const query: Record<string, string> = {}
+    if (gameId) {
+      query.gameId = gameId
+    }
+
     this.socket = io(wsUrl, {
       autoConnect: true,
       transports: ['websocket'],
       reconnectionAttempts: 3,
       reconnectionDelay: 1000,
+      query,
+      auth: { token: getAccessToken() },
     })
 
     return this.socket

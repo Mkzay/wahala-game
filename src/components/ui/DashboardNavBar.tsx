@@ -219,6 +219,18 @@ export function DashboardNavBar() {
               </Link>
             )
           })}
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="flex flex-col items-center justify-center py-1 px-3 rounded-xl transition-all text-w-text-3 hover:text-w-danger"
+          >
+            <div className="p-1 rounded-lg hover:bg-w-danger/10 transition-colors">
+              <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24">
+                <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
+              </svg>
+            </div>
+            <span className="text-[10px] font-display font-semibold mt-0.5 tracking-tight">Logout</span>
+          </button>
         </div>
       </nav>
     </>

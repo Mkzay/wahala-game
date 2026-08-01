@@ -12,30 +12,49 @@ export interface ApiResponse<T> {
   }
 }
 
+export interface APIProfile {
+  id: string
+  username: string
+  email: string
+  overallLevel: number
+  totalXp: number
+  coins: number
+  title: string
+  createdAt: string
+}
+
 export interface APIUser {
   id: string
   username: string
-  email?: string
-  avatar_url?: string
-  coins?: number
-  xp?: number
-  level?: number
-  favorite_class?: string
+  email: string
 }
 
 export interface APIRoom {
-  room_id: string
-  room_name: string
-  host: {
-    user_id: string
-    username: string
-  }
-  game_mode: 'classic' | 'progression'
+  id: string
+  code: string
+  name: string
+  hostId: string
+  hostUsername: string
+  gameMode: string
   visibility: 'public' | 'private'
-  current_players: number
-  max_players: number
-  status: 'waiting' | 'in_progress' | 'completed'
-  created_at: string
+  maxPlayers: number
+  playerCount: number
+  roundCount: number | null
+  timerEnabled: boolean
+  status: 'waiting' | 'in_progress' | 'finished' | 'disbanded'
+}
+
+export interface APIRoomReadyPlayer {
+  userId: string
+  username: string
+  isReady: boolean
+  joinedAt: string
+}
+
+export interface APIRoomReadyState {
+  roomId: string
+  players: APIRoomReadyPlayer[]
+  allReady: boolean
 }
 
 export interface APIAuthResponse {

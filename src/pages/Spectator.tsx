@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { GameBoardTable } from '../components/game/GameBoardTable'
 import { GameSidebar } from '../components/game/GameSidebar'
 import type { CardSuit, CardType } from '../components/game/GameCard'
-import type { RuleType } from '../types/game'
+import type { GamePlayer, RuleType } from '../types/game'
 
 export default function Spectator() {
   const { gameId = 'demo-game-id' } = useParams()
@@ -14,11 +14,11 @@ export default function Spectator() {
   const [round] = useState<number>(3)
   const [currentTurnPlayerId, setCurrentTurnPlayerId] = useState<string | null>('happiness-id')
 
-  const [players] = useState([
-    { id: 'mkzay-id', username: 'Mkzay', points: 140, cardCount: 3, status: 'active' as const },
-    { id: 'esther-id', username: 'Esther', points: 95, cardCount: 6, status: 'active' as const },
-    { id: 'happiness-id', username: 'Happiness', points: 120, cardCount: 4, status: 'active' as const },
-    { id: 'roseanne-id', username: 'Roseanne', points: 210, cardCount: 8, status: 'active' as const },
+  const [players] = useState<GamePlayer[]>([
+    { userId: 'mkzay-id', username: 'Mkzay', cardCount: 3, status: 'active', class: null, previousClass: null, abilityUsed: false, activeShield: false, comboBoostActive: false, cardValueSum: 0, cumulativeScore: 140 },
+    { userId: 'esther-id', username: 'Esther', cardCount: 6, status: 'active', class: null, previousClass: null, abilityUsed: false, activeShield: false, comboBoostActive: false, cardValueSum: 0, cumulativeScore: 95 },
+    { userId: 'happiness-id', username: 'Happiness', cardCount: 4, status: 'active', class: null, previousClass: null, abilityUsed: false, activeShield: false, comboBoostActive: false, cardValueSum: 0, cumulativeScore: 120 },
+    { userId: 'roseanne-id', username: 'Roseanne', cardCount: 8, status: 'active', class: null, previousClass: null, abilityUsed: false, activeShield: false, comboBoostActive: false, cardValueSum: 0, cumulativeScore: 210 },
   ])
 
   const [activeCard, setActiveCard] = useState<CardType | null>({
@@ -41,7 +41,7 @@ export default function Spectator() {
       const nextId = pKeys[nextIdx]
       setCurrentTurnPlayerId(nextId)
 
-      const activePlayerObj = players.find((p) => p.id === nextId)
+      const activePlayerObj = players.find((p) => p.userId === nextId)
       const suits: CardSuit[] = ['circle', 'triangle', 'cross', 'star', 'square', 'whot']
       const randomSuit = suits[Math.floor(Math.random() * suits.length)]
       const randomVal = Math.floor(Math.random() * 14) + 1
@@ -117,7 +117,12 @@ export default function Spectator() {
             <GameSidebar
               activeRules={activeRules}
               eventLogs={eventLogs}
-              playerStandings={players}
+              playerStandings={players.map((p) => ({
+                id: p.userId,
+                username: p.username,
+                points: p.cumulativeScore,
+                cardCount: p.cardCount,
+              }))}
               mode="classic"
               round={round}
             />

@@ -15,18 +15,31 @@ describe('GameBoard Store & State integration', () => {
       result.current.applyStateSnapshot({
         game: {
           gameId: 'room-1',
+          roomId: 'room-1',
           mode: 'classic',
           round: 1,
+          totalRounds: null,
+          phase: 'roundActive',
+          turnPhase: 'awaitingPlay',
+          status: 'active',
           currentTurnPlayerId: 'p1',
-          marketCount: 30,
-          activeRules: [],
+          turnOrder: ['p1'],
+          isClockwise: true,
           players: [],
-          reactionWindowEndsAtMs: null,
+          playerHands: {},
+          market: [],
+          discardPile: [],
+          activeCard: null,
+          declaredSuit: null,
+          activeRules: [],
+          reactionWindow: null,
+          timerSeconds: null,
+          winnerId: null,
         },
       })
     })
 
-    expect(result.current.gameState?.marketCount).toBe(30)
+    expect(result.current.gameState?.gameId).toBe('room-1')
 
     act(() => {
       result.current.onCardPlayed({
@@ -38,7 +51,6 @@ describe('GameBoard Store & State integration', () => {
       })
     })
 
-    expect(result.current.gameState?.marketCount).toBe(29)
     expect(result.current.gameState?.currentTurnPlayerId).toBe('p2')
   })
 })

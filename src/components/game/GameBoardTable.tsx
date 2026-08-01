@@ -27,7 +27,7 @@ export function GameBoardTable({
   const [timeLeft, setTimeLeft] = useState<number>(0)
 
   // Position other players around the table
-  const otherPlayers = players.filter((p) => p.id !== localUserId)
+  const otherPlayers = players.filter((p) => p.userId !== localUserId)
 
   // Map players to positions around the felt arena:
   // - Pos 0: Left side
@@ -81,13 +81,13 @@ export function GameBoardTable({
 
       {/* Render Opponent Players around the table */}
       {otherPlayers.map((player, idx) => {
-        const isTurn = player.id === currentTurnPlayerId
+        const isTurn = player.userId === currentTurnPlayerId
         const isEliminated = player.status === 'eliminated'
         const isSpectator = player.status === 'spectating'
 
         return (
           <div
-            key={player.id}
+            key={player.userId}
             className={`absolute z-10 flex flex-col items-center select-none transition-all duration-300 ${
               isTurn ? 'scale-110' : 'hover:scale-105'
             } ${getPlayerPosition(idx)}`}

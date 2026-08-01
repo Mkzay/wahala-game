@@ -14,11 +14,11 @@ describe('mockSocketService', () => {
     expect(callback).toHaveBeenCalledTimes(1)
   })
 
-  it('simulates state snapshot when emitting game:join', async () => {
+  it('simulates state snapshot when emitting game:state:request', async () => {
     const snapshotCallback = vi.fn()
     mockSocketService.on('game:stateSnapshot', snapshotCallback)
 
-    mockSocketService.emit('game:join', { gameId: 'test-room' })
+    mockSocketService.emit('game:state:request', { gameId: 'test-room' })
 
     await new Promise((resolve) => setTimeout(resolve, 100))
     expect(snapshotCallback).toHaveBeenCalled()

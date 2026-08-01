@@ -1,6 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuthStore } from '../store/authStore'
 import { useGameStore } from '../store/gameStore'
 import { useAuth } from '../hooks/useAuth'
 
@@ -9,9 +8,14 @@ type AuthTab = 'signin' | 'signup'
 export default function Auth() {
   const [activeTab, setActiveTab] = useState<AuthTab>('signin')
   const navigate = useNavigate()
-  const login = useAuthStore((state) => state.login)
   const setCanAccessGame = useGameStore((state) => state.setCanAccessGame)
-  const { loginWithPassword, signupWithEmail } = useAuth()
+  const { isAuthenticated, loginWithPassword, signupWithEmail } = useAuth()
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/home', { replace: true })
+    }
+  }, [isAuthenticated, navigate])
 
   // Form states
   const [email, setEmail] = useState('')
@@ -20,16 +24,6 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-
-  const handlePreview = () => {
-    login({
-      id: 'preview-user',
-      username: 'Mkzay',
-      email: 'mkzay@gmail.com',
-    })
-    setCanAccessGame(true)
-    navigate('/home')
-  }
 
   const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -316,18 +310,6 @@ export default function Auth() {
           <p className="mt-4 text-center text-[10px] text-w-text-3 leading-normal">
             By logging in, you agree to our Terms of Service and data usage policy.
           </p>
-
-          {/* Demo account bypass */}
-          <div className="mt-6 pt-4 border-t border-w-border/30 text-center">
-            <button
-              type="button"
-              onClick={handlePreview}
-              aria-label="Continue as Guest to play preview"
-              className="text-xs text-w-yellow underline font-semibold hover:text-w-yellow/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-yellow rounded"
-            >
-              Skip auth (Preview Home) →
-            </button>
-          </div>
 
         </div>
       </section>

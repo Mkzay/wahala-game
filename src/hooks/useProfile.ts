@@ -10,20 +10,19 @@ export interface UseProfileResult {
   updateUsername: (newUsername: string) => Promise<void>
 }
 
-export function useProfile(userId: string): UseProfileResult {
+export function useProfile(): UseProfileResult {
   const queryClient = useQueryClient()
 
   const query = useQuery<UserProfile, AppError>({
-    queryKey: ['profile', userId],
-    queryFn: () => profileService.getProfile(userId),
+    queryKey: ['myProfile'],
+    queryFn: () => profileService.getMyProfile(),
     staleTime: 5000,
-    enabled: userId.length > 0,
   })
 
   const mutation = useMutation<UserProfile, AppError, string>({
     mutationFn: (newUsername: string) => profileService.updateUsername(newUsername),
     onSuccess: (updatedProfile) => {
-      queryClient.setQueryData(['profile', userId], updatedProfile)
+      queryClient.setQueryData(['myProfile'], updatedProfile)
     },
   })
 

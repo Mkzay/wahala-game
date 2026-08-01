@@ -1,6 +1,6 @@
 interface PlayerRowProps {
   name: string
-  subtext: string
+  subtext?: string
   badgeLabel: string
   badgeClassName: string
   containerClassName?: string

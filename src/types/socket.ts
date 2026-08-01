@@ -3,7 +3,7 @@ import type { Socket } from 'socket.io-client'
 export type SocketConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'reconnecting'
 
 export interface ISocketService {
-  connect(): Socket | null
+  connect(gameId?: string): Socket | null
   disconnect(): void
   getSocket(): Socket | null
   isConnected(): boolean

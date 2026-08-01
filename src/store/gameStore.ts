@@ -39,7 +39,14 @@ export interface GameStore {
   resetGame: () => void
 }
 
-const MAX_ACTIVE_RULES = 2
+const phaseMap: Record<string, GamePhase> = {
+  classSelection: 'classSelection',
+  board: 'board',
+  roundActive: 'board',
+  shop: 'board',
+  roundEnded: 'roundEnd',
+  gameEnded: 'gameEnd',
+}
 
 export const useGameStore = create<GameStore>((set) => ({
   gameState: null,
@@ -55,9 +62,9 @@ export const useGameStore = create<GameStore>((set) => ({
   applyStateSnapshot: ({ game }) =>
     set({
       gameState: game,
-      gamePhase: 'board',
+      gamePhase: phaseMap[game.phase] ?? 'board',
       canAccessGame: true,
-      winnerPlayerId: null,
+      winnerPlayerId: game.winnerId ?? null,
       lastEvent: 'game:stateSnapshot',
     }),
   onCardPlayed: (payload) =>
@@ -69,7 +76,6 @@ export const useGameStore = create<GameStore>((set) => ({
       return {
         gameState: {
           ...state.gameState,
-          marketCount: payload.marketCount,
           currentTurnPlayerId: payload.nextTurnPlayerId,
         },
         lastEvent: 'card:played',
@@ -95,14 +101,7 @@ export const useGameStore = create<GameStore>((set) => ({
         return state
       }
 
-      const nextRules = [...state.gameState.activeRules, payload.rule].slice(-MAX_ACTIVE_RULES)
-      return {
-        gameState: {
-          ...state.gameState,
-          activeRules: nextRules,
-        },
-        lastEvent: 'rule:activated',
-      }
+      return { lastEvent: 'rule:activated' }
     }),
   onRoundEnded: (payload) =>
     set((state) => {
@@ -142,7 +141,7 @@ export const useGameStore = create<GameStore>((set) => ({
         gameState: {
           ...state.gameState,
           players: state.gameState.players.map((player) =>
-            player.id === payload.playerId
+            player.userId === payload.playerId
               ? { ...player, status: 'spectating' }
               : player,
           ),
@@ -159,7 +158,9 @@ export const useGameStore = create<GameStore>((set) => ({
       return {
         gameState: {
           ...state.gameState,
-          reactionWindowEndsAtMs: payload.closesAtMs,
+          reactionWindow: state.gameState.reactionWindow
+            ? { ...state.gameState.reactionWindow, expiresAtMs: payload.closesAtMs }
+            : { targetUserId: '', attackerUserId: '', penaltyType: '', penaltyAmount: 0, expiresAtMs: payload.closesAtMs },
         },
         lastEvent: 'reaction:window:opened',
       }

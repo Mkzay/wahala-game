@@ -4,20 +4,21 @@ import { StepperControl } from '../components/ui/StepperControl'
 import { DashboardNavBar } from '../components/ui/DashboardNavBar'
 import { roomService } from '../services/roomService'
 import { toast } from '../store/toastStore'
+import { useAuthStore } from '../store/authStore'
 
 type RoomVisibility = 'private' | 'public'
 type GameMode = 'classic' | 'progression'
 
 export default function CreateRoom() {
   const navigate = useNavigate()
+  const user = useAuthStore((state) => state.user)
   const [visibility, setVisibility] = useState<RoomVisibility>('private')
   const [mode, setMode] = useState<GameMode>('classic')
   const [maxPlayers, setMaxPlayers] = useState<number>(visibility === 'private' ? 6 : 8)
   const [rounds, setRounds] = useState<number>(5)
   const [turnTimer, setTurnTimer] = useState<boolean>(false)
   
-  // Interactive API states
-  const [roomName, setRoomName] = useState("Mkzay’s den of chaos")
+  const [roomName, setRoomName] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
   const isPublic = visibility === 'public'
@@ -33,19 +34,16 @@ export default function CreateRoom() {
       setVisibility('private')
       setMode('classic')
       setMaxPlayers(2)
-      setRoomName("Quick 1v1 Arena")
     } else if (type === 'standard4') {
       setVisibility('public')
       setMode('progression')
       setMaxPlayers(4)
       setRounds(5)
-      setRoomName("Standard 4-Player Battle")
     } else if (type === 'mayhem8') {
       setVisibility('public')
       setMode('progression')
       setMaxPlayers(8)
       setRounds(7)
-      setRoomName("Naija Mayhem Arena")
     }
   }
 
@@ -53,7 +51,7 @@ export default function CreateRoom() {
     setIsLoading(true)
     try {
       const room = await roomService.createRoom({
-        name: roomName || (visibility === 'private' ? "Mkzay’s den of chaos" : 'Weekend mayhem'),
+        name: roomName || `${user?.username ?? 'Player'}'s Room`,
         gameMode: mode,
         visibility,
         maxPlayers,
@@ -138,13 +136,12 @@ export default function CreateRoom() {
             <div>
               <span className="mb-2 block text-xs font-bold text-w-text-2">Room Visibility</span>
               <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setVisibility('private')
-                    setMaxPlayers(6)
-                    setRoomName("Mkzay’s den of chaos")
-                  }}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setVisibility('private')
+                      setMaxPlayers(6)
+                    }}
                   className={`rounded-2xl border px-4 py-3.5 text-xs font-display font-black transition-[colors,border-color,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange ${
                     visibility === 'private'
                       ? 'border-w-orange bg-w-orange/10 text-w-orange shadow-tactile-sm'
@@ -153,14 +150,13 @@ export default function CreateRoom() {
                 >
                   🔒 Private Room
                 </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setVisibility('public')
-                    setMaxPlayers(8)
-                    setMode('progression')
-                    setRoomName("Weekend mayhem")
-                  }}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setVisibility('public')
+                      setMaxPlayers(8)
+                      setMode('progression')
+                    }}
                   className={`rounded-2xl border px-4 py-3.5 text-xs font-display font-black transition-[colors,border-color,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange ${
                     visibility === 'public'
                       ? 'border-w-orange bg-w-orange/10 text-w-orange shadow-tactile-sm'

@@ -1,6 +1,6 @@
 import { api } from './api'
 import type { Room } from '../types/room'
-import type { APIRoom } from '../types/api'
+import type { APIRoom, APIRoomReadyState, APIRoomReadyPlayer } from '../types/api'
 
 export interface RoomSearchParams {
   query?: string
@@ -19,23 +19,46 @@ export interface CreateRoomInput {
   timerEnabled?: boolean
 }
 
+export interface PlayerInfo {
+  userId: string
+  username: string
+  isReady: boolean
+  joinedAt: string
+}
+
+export interface RoomReadyInfo {
+  roomId: string
+  players: PlayerInfo[]
+  allReady: boolean
+}
+
 export function transformRoom(raw: APIRoom): Room {
-  const roomId = raw?.room_id ?? 'room-demo'
-  const hostId = raw?.host?.user_id ?? 'unknown'
-  const hostUsername = raw?.host?.username ?? 'Host'
   return {
-    id: roomId,
-    code: `WHL-${roomId.slice(-4).toUpperCase()}`,
-    name: raw?.room_name ?? 'Battle Room',
-    hostId,
-    hostUsername,
-    gameMode: raw?.game_mode ?? 'classic',
-    visibility: raw?.visibility ?? 'private',
-    maxPlayers: raw?.max_players ?? 6,
-    playerCount: raw?.current_players ?? 1,
-    roundCount: null,
-    timerEnabled: true,
-    status: raw?.status === 'in_progress' ? 'in_progress' : raw?.status === 'completed' ? 'finished' : 'waiting',
+    id: raw.id,
+    code: raw.code,
+    name: raw.name,
+    hostId: raw.hostId,
+    hostUsername: raw.hostUsername,
+    gameMode: raw.gameMode,
+    visibility: raw.visibility,
+    maxPlayers: raw.maxPlayers,
+    playerCount: raw.playerCount,
+    roundCount: raw.roundCount,
+    timerEnabled: raw.timerEnabled,
+    status: raw.status,
+  }
+}
+
+export function transformReadyState(raw: APIRoomReadyState): RoomReadyInfo {
+  return {
+    roomId: raw.roomId,
+    allReady: raw.allReady,
+    players: raw.players.map((p: APIRoomReadyPlayer) => ({
+      userId: p.userId,
+      username: p.username,
+      isReady: p.isReady,
+      joinedAt: p.joinedAt,
+    })),
   }
 }
 
@@ -59,7 +82,32 @@ export const roomService = {
     await api.post(`/rooms/${roomId}/join`)
   },
 
+  async joinRoomByCode(code: string): Promise<Room> {
+    const response = await api.post<APIRoom>('/rooms/join-by-code', { code })
+    return transformRoom(response.data)
+  },
+
   async leaveRoom(roomId: string): Promise<void> {
     await api.post(`/rooms/${roomId}/leave`)
+  },
+
+  async getReadyState(roomId: string): Promise<RoomReadyInfo> {
+    const response = await api.get<APIRoomReadyState>(`/rooms/${roomId}/ready`)
+    return transformReadyState(response.data)
+  },
+
+  async setReady(roomId: string): Promise<RoomReadyInfo> {
+    const response = await api.post<APIRoomReadyState>(`/rooms/${roomId}/ready`)
+    return transformReadyState(response.data)
+  },
+
+  async startGame(roomId: string): Promise<{ gameId: string }> {
+    const response = await api.post<{ gameId: string }>(`/rooms/${roomId}/start`)
+    return response.data
+  },
+
+  async updateRoom(roomId: string, data: Partial<CreateRoomInput>): Promise<Room> {
+    const response = await api.patch<APIRoom>(`/rooms/${roomId}`, data)
+    return transformRoom(response.data)
   },
 }

@@ -30,8 +30,19 @@ const NotFound = lazy(() => import('./pages/NotFound'))
 
 function PageLoader() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-w-bg font-body text-w-text">
-      Loading…
+    <div className="min-h-screen w-full bg-w-bg text-w-text flex flex-col items-center justify-center gap-5 select-none">
+      <div className="h-12 w-12 rounded-2xl bg-gradient-to-tr from-w-orange to-w-yellow flex items-center justify-center font-display text-2xl font-black text-w-surface shadow-tactile-lg animate-pulse">
+        ⚡
+      </div>
+      <div className="relative">
+        <svg className="h-8 w-8 animate-spin text-w-orange" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+          <path className="opacity-100" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
+      </div>
+      <p className="font-display text-xs font-bold text-w-text-3 uppercase tracking-widest animate-pulse">
+        Loading…
+      </p>
     </div>
   )
 }

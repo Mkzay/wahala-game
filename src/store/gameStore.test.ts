@@ -17,15 +17,28 @@ describe('useGameStore', () => {
   it('applies game state snapshot correctly', () => {
     const mockState: GameState = {
       gameId: 'room-101',
+      roomId: 'room-101',
       mode: 'classic',
       round: 1,
+      totalRounds: null,
+      phase: 'roundActive',
+      turnPhase: 'awaitingPlay',
+      status: 'active',
       currentTurnPlayerId: 'player-1',
-      marketCount: 24,
-      activeRules: ['light'],
+      turnOrder: ['player-1'],
+      isClockwise: true,
       players: [
-        { id: 'player-1', username: 'Mkzay', cardCount: 5, status: 'active' },
+        { userId: 'player-1', username: 'Mkzay', cardCount: 5, status: 'active', class: null, previousClass: null, abilityUsed: false, activeShield: false, comboBoostActive: false, cardValueSum: 0, cumulativeScore: 0 },
       ],
-      reactionWindowEndsAtMs: null,
+      playerHands: {},
+      market: [],
+      discardPile: [],
+      activeCard: null,
+      declaredSuit: null,
+      activeRules: [],
+      reactionWindow: null,
+      timerSeconds: null,
+      winnerId: null,
     }
 
     useGameStore.getState().applyStateSnapshot({ game: mockState })
@@ -39,13 +52,26 @@ describe('useGameStore', () => {
   it('handles card:played event and updates marketCount & turn', () => {
     const mockState: GameState = {
       gameId: 'room-101',
+      roomId: 'room-101',
       mode: 'classic',
       round: 1,
+      totalRounds: null,
+      phase: 'roundActive',
+      turnPhase: 'awaitingPlay',
+      status: 'active',
       currentTurnPlayerId: 'player-1',
-      marketCount: 24,
-      activeRules: ['light'],
+      turnOrder: ['player-1'],
+      isClockwise: true,
       players: [],
-      reactionWindowEndsAtMs: null,
+      playerHands: {},
+      market: [],
+      discardPile: [],
+      activeCard: null,
+      declaredSuit: null,
+      activeRules: [],
+      reactionWindow: null,
+      timerSeconds: null,
+      winnerId: null,
     }
 
     useGameStore.getState().applyStateSnapshot({ game: mockState })
@@ -58,7 +84,6 @@ describe('useGameStore', () => {
     })
 
     const state = useGameStore.getState()
-    expect(state.gameState?.marketCount).toBe(23)
     expect(state.gameState?.currentTurnPlayerId).toBe('player-2')
     expect(state.lastEvent).toBe('card:played')
   })
