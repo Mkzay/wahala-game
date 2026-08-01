@@ -2,6 +2,7 @@ import axios, { AxiosError } from 'axios'
 import type { AppError } from '../types/api'
 import { useAuthStore } from '../store/authStore'
 import { toast } from '../store/toastStore'
+import { devLog } from '../store/devLogStore'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL
 
@@ -70,12 +71,13 @@ api.interceptors.response.use(
     const originalRequest = error.config as any
 
     const appError: AppError = {
-      message: error.response?.data?.error?.message ?? error.response?.data?.message ?? 'Something went wrong',
+      message: error.response?.data?.error?.message ?? error.response?.data?.message ?? error.message ?? 'Something went wrong',
       code: error.response?.data?.error?.statusCode ?? error.response?.status ?? 500,
     }
 
     // Trigger toast notification for error
     toast.error(appError.message)
+    devLog.network(`${originalRequest?.method?.toUpperCase() ?? 'HTTP'} ${originalRequest?.url ?? ''} → ${appError.code}: ${appError.message}`, appError.code)
 
     const isAuthEndpoint = originalRequest?.url?.includes('/auth/login') || originalRequest?.url?.includes('/auth/signup')
 

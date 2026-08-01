@@ -21,18 +21,18 @@ Before making any changes to `wahala-game`, read the context documents in this e
 
 ## 3. Current Project Phase & Execution Status
 
-### Status: **Phase 1 – Phase 4 Completed & Verified**
+### Status: **Phase 1 – Phase 4 Completed & Verified + Live Auth & Dev Console**
 - **Completed Phases**:
   - **Phase 1 (Types & Services)**: `ISocketService` defined in `types/socket.ts`, API envelopes in `types/api.ts`, pure transform functions `transformRoom` & `transformProfile` with unit tests passing.
   - **Phase 2 (Socket Adapter & Stores)**: `socketService.mock.ts` dev adapter created, `gameStore.ts` & `lobbyStore.ts` reducers wired, `useGameSocket.ts` bound, unit tests passing.
   - **Phase 3 (TanStack Query & RoomBrowser)**: `useRooms.ts` updated with `useQuery`, search debouncing, and filter state. `RoomBrowser.tsx` decoupled. Unit tests passing.
   - **Phase 4 (Component Decoupling & Toast System)**: `GameBoard.tsx` & `Lobby.tsx` decoupled from local mock loops to socket emissions. Option A Custom Glassmorphic Toast System implemented (`toastStore.ts` + `ToastContainer.tsx`). `routes.test.tsx` route guards verified.
-  - **Dependency & Node Modules Fix (`7c3dce1`)**: Restored clean local `node_modules` via `npm install`, added production dependencies to `package.json`, resolved TypeScript strict mode interface alignment across `GameBoardTable`, `Spectator`, `GameSidebar`, and `gameService`.
+  - **Live Authentication**: Real HTTP authentication against `http://localhost:3001/v1/auth/login` and `/auth/signup` in `authService.ts` and `Auth.tsx`.
+  - **Live Dev Error Console (`<DevErrorConsole />`)**: In-app live error console overlay mounted at root level (`devLogStore.ts` + `DevErrorConsole.tsx`), capturing all HTTP errors, socket disconnects, unhandled promise rejections, and runtime script errors.
 
 ### Explicitly Deferred Screens (Require Follow-Up Plan Maps)
 The following screens have completed UI redesigns but are deferred for server hook/store decoupling in subsequent phase maps:
 - `CreateRoom.tsx`
-- `Auth.tsx`
 - `Profile.tsx`
 - `Settings.tsx`
 - `History.tsx`
@@ -52,16 +52,17 @@ The following decisions were explicitly agreed upon during planning and **MUST N
 3. **Atomic Task Sizing for `GameBoard.tsx`**: `GameBoard.tsx` refactoring is split into 3 sub-tasks (`Task 4.2a`: Turn & Hand Wiring, `Task 4.2b`: Reaction Window & Timer, `Task 4.2c`: Abilities & Dynamic Rules). Do NOT recombine them into a single task.
 4. **Reconnect Verification Status**: Testing `VITE_USE_MOCK_SOCKET=false` against a live socket server is explicitly marked `[BLOCKED UNTIL LIVE BACKEND SOCKET SERVER IS RUNNING]`.
 5. **Option A Custom Glassmorphic Toast System**: Global error & action feedback uses `toastStore.ts` and `<ToastContainer />` (no inline error text banners in forms). HTTP errors automatically trigger `toast.error(...)` via the Axios response interceptor in `api.ts`.
-6. **Password Toggle**: Password inputs in `Auth.tsx` feature an interactive eye toggle button for Sign In and Sign Up tabs.
-7. **Package Dependencies**: All production packages (`react-router-dom`, `@tanstack/react-query`, `axios`, `socket.io-client`, `zustand`) are declared directly in `wahala-game/package.json` for Vercel deployment.
-8. **Per-Phase Definition of Done**: Unit/hook tests must be co-located with deliverables in each phase. A phase is not complete until `npm test` and `npm run build` pass with 0 errors.
+6. **Live In-App Dev Error Console**: `<DevErrorConsole />` is mounted at root level to log all frontend errors, API failures, socket events, and unhandled promise rejections live during screen testing.
+7. **Password Toggle**: Password inputs in `Auth.tsx` feature an interactive eye toggle button for Sign In and Sign Up tabs.
+8. **Package Dependencies**: All production packages (`react-router-dom`, `@tanstack/react-query`, `axios`, `socket.io-client`, `zustand`) are declared directly in `wahala-game/package.json` for Vercel deployment.
+9. **Per-Phase Definition of Done**: Unit/hook tests must be co-located with deliverables in each phase. A phase is not complete until `npm test` and `npm run build` pass with 0 errors.
 
 ---
 
 ## 5. Open Questions & Deferred Items
 
 1. **Live Backend Socket Handler Integration**: Verification of real Socket.io auto-reconnect banner behavior awaits live backend socket server event handlers.
-2. **Deferred Screen Phase Maps**: Dedicated phase maps must be drafted and approved before refactoring `CreateRoom`, `Auth`, `Profile`, `Settings`, `History`, `Leaderboard`, `ClassSelection`, `RoundEnd`, or `GameEnd`.
+2. **Deferred Screen Phase Maps**: Dedicated phase maps must be drafted and approved before refactoring `CreateRoom`, `Profile`, `Settings`, `History`, `Leaderboard`, `ClassSelection`, `RoundEnd`, or `GameEnd`.
 
 ---
 
@@ -70,7 +71,7 @@ The following decisions were explicitly agreed upon during planning and **MUST N
 - **Do NOT regenerate `implementation_plan.md` v3**: The plan is v3 approved — only extend it for new phase maps.
 - **Do NOT remove or replace `socketService.mock.ts`**: The dev mock adapter is essential for offline frontend UI testing.
 - **Do NOT replace the Option A Toast System**: `<ToastContainer />` and `toastStore.ts` are locked.
-- **Do NOT move production dependencies out of `wahala-game/package.json`**.
+- **Do NOT remove `<DevErrorConsole />`**: The dev logger overlay is active for screen testing.
 
 ---
 

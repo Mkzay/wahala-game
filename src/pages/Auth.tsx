@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useGameStore } from '../store/gameStore'
 import { useAuth } from '../hooks/useAuth'
+import { toast } from '../store/toastStore'
 
 type AuthTab = 'signin' | 'signup'
 
@@ -36,16 +37,19 @@ export default function Auth() {
           throw new Error('Email and password are required.')
         }
         await loginWithPassword(email, password)
+        toast.success('Welcome back to Wahala!')
       } else {
         if (!username || !email || !password) {
           throw new Error('All fields are required.')
         }
         await signupWithEmail(username, email, password)
+        toast.success('Account created successfully!')
       }
       setCanAccessGame(true)
       navigate('/home')
     } catch (err: any) {
       setErrorMsg(err?.message ?? 'An error occurred during authentication.')
+      toast.error(err?.message ?? 'An error occurred during authentication.')
     } finally {
       setIsLoading(false)
     }

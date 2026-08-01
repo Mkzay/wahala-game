@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { socketService } from '../services/socketService'
 import { useGameState } from './useGameState'
+import { devLog } from '../store/devLogStore'
 
 interface UseGameSocketOptions {
   gameId: string
@@ -35,11 +36,13 @@ export function useGameSocket({
 
     const handleConnect = () => {
       setConnected(true)
+      devLog.socket(`Socket connected to gameId: ${gameId}`)
       requestStateSnapshot()
     }
 
     const handleDisconnect = () => {
       setConnected(false)
+      devLog.socket(`Socket disconnected from gameId: ${gameId}`)
     }
 
     socketService.on('connect', handleConnect)
