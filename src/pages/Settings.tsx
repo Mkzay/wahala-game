@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { DashboardNavBar } from '../components/ui/DashboardNavBar'
+import { isSoundEnabled, setSoundEnabled, playUiSound } from '../lib/sound'
 
 type SettingKey =
   | 'turnTimer'
@@ -15,7 +16,7 @@ export default function Settings() {
   const [activeTab, setActiveTab] = useState<'gameplay' | 'audio' | 'social'>('gameplay')
   const [settings, setSettings] = useState({
     turnTimer: false,
-    soundEffects: true,
+    soundEffects: isSoundEnabled(),
     music: true,
     invites: true,
     roundResults: false,
@@ -25,7 +26,14 @@ export default function Settings() {
   })
 
   const toggle = (key: SettingKey) => {
-    setSettings((value) => ({ ...value, [key]: !value[key] }))
+    setSettings((value) => {
+      const next = !value[key]
+      if (key === 'soundEffects') {
+        setSoundEnabled(next)
+        if (next) playUiSound('power')
+      }
+      return { ...value, [key]: next }
+    })
   }
 
   const gameplaySettings = [
@@ -64,7 +72,7 @@ export default function Settings() {
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-24 lg:pb-8 flex flex-col gap-6">
         
         {/* Header Hero Banner */}
-        <header className="rounded-3xl border border-w-border bg-gradient-to-r from-w-surface via-w-bg to-w-surface p-6 shadow-tactile-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <header className="game-panel ornate-frame rounded-[32px] border-2 border-[#7a4b2e]/25 bg-[linear-gradient(120deg,#fffdf6_0%,#ffe9bd_54%,#f8ce82_100%)] p-6 sm:p-8 shadow-[0_8px_0_rgba(122,75,46,.16),0_25px_55px_rgba(101,62,33,.16)] relative overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <span className="text-[10px] sm:text-xs font-display font-black uppercase tracking-widest text-w-orange bg-w-orange/10 border border-w-orange/30 px-3 py-1 rounded-full">
               Client Control Panel ⚙️

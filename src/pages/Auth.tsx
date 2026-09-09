@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useGameStore } from '../store/gameStore'
 import { useAuth } from '../hooks/useAuth'
 import { toast } from '../store/toastStore'
+import { useTheme } from '../hooks/useTheme'
 
 type AuthTab = 'signin' | 'signup'
 
@@ -11,6 +12,7 @@ export default function Auth() {
   const navigate = useNavigate()
   const setCanAccessGame = useGameStore((state) => state.setCanAccessGame)
   const { isAuthenticated, loginWithPassword, signupWithEmail } = useAuth()
+  const { theme, toggleTheme } = useTheme()
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -59,7 +61,7 @@ export default function Auth() {
     <div className="min-h-screen w-full bg-w-bg text-w-text grid grid-cols-1 lg:grid-cols-12">
       
       {/* Left Column: Brand Showcase (Laptop/Desktop only - occupies 7 cols) */}
-      <section className="hidden lg:flex lg:col-span-7 bg-[radial-gradient(circle_at_center,_#FFFDF8_0%,_#F8F4EC_100%)] border-r border-w-border relative flex-col justify-between p-12 overflow-hidden select-none">
+      <section className="hidden lg:flex lg:col-span-7 bg-w-bg border-r border-w-border relative flex-col justify-between p-12 overflow-hidden select-none">
         {/* Floating grid pattern */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(45,34,28,0.015)_1px,_transparent_1px),_linear-gradient(90deg,_rgba(45,34,28,0.015)_1px,_transparent_1px)] bg-[size:30px_30px]" />
         
@@ -127,7 +129,8 @@ export default function Auth() {
       </section>
 
       {/* Right Column: Form Panel (cols 5 on desktop) */}
-      <section className="col-span-1 lg:col-span-5 flex flex-col justify-center px-6 py-12 lg:p-16 overflow-y-auto h-full">
+      <section className="relative col-span-1 lg:col-span-5 flex flex-col justify-center px-6 py-12 lg:p-16 overflow-y-auto h-full">
+        <button type="button" onClick={toggleTheme} title="Toggle theme" aria-label="Toggle theme" className="absolute right-5 top-5 rounded-xl border border-w-border bg-w-surface px-3 py-2 text-xs font-bold text-w-text-2 transition hover:border-w-orange hover:text-w-orange">{theme === 'dark' ? '☼ Light' : '☾ Dark'}</button>
         <div className="w-full max-w-sm mx-auto">
           
           {/* Header */}

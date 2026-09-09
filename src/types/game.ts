@@ -63,6 +63,8 @@ export interface GameState {
   declaredSuit: string | null
   activeRules: ActiveRule[]
   reactionWindow: ReactionWindow | null
+  pendingPenalty?: number
+  pendingPenaltyType?: 'pick_2' | 'pick_3' | null
   timerSeconds: number | null
   winnerId: string | null
 }

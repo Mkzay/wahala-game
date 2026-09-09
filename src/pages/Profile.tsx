@@ -20,9 +20,9 @@ export default function Profile() {
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-24 lg:pb-8 flex flex-col gap-6">
         
         {/* Profile Header Hero */}
-        <header className="rounded-3xl border border-w-border bg-gradient-to-r from-w-surface via-w-bg to-w-surface p-6 shadow-tactile-md flex flex-col sm:flex-row items-center sm:items-center justify-between text-center sm:text-left gap-4">
+        <header className="game-panel ornate-frame rounded-[32px] border-2 border-[#7a4b2e]/25 bg-[linear-gradient(120deg,#fffdf6_0%,#ffe9bd_54%,#f8ce82_100%)] p-6 sm:p-8 shadow-[0_8px_0_rgba(122,75,46,.16),0_25px_55px_rgba(101,62,33,.16)] relative overflow-hidden flex flex-col sm:flex-row items-center sm:items-center justify-between text-center sm:text-left gap-4">
           <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
-            <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-3xl border-2 border-w-orange bg-w-bg flex items-center justify-center font-display text-2xl font-black text-w-orange shadow-tactile-sm flex-shrink-0">
+            <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-3xl border-3 border-[#e8ab32] bg-[#064e43] flex items-center justify-center font-display text-2xl font-black text-[#f8ce82] shadow-[0_0_20px_rgba(232,171,50,0.4)] flex-shrink-0">
               MK
             </div>
             <div>

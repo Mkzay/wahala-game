@@ -1,17 +1,23 @@
 import { create } from 'zustand'
 import type { ToastMessage } from '../types/toast'
 
-interface ToastState {
+export interface ToastState {
   toasts: ToastMessage[]
   addToast: (toast: Omit<ToastMessage, 'id'>) => string
   removeToast: (id: string) => void
   clearToasts: () => void
 }
 
-export const useToastStore = create<ToastState>((set) => ({
+export const useToastStore = create<ToastState>((set, get) => ({
   toasts: [],
 
-  addToast: (toast) => {
+  addToast: (toast: Omit<ToastMessage, 'id'>): string => {
+    // Deduplication: prevent stacking identical error or status messages
+    const existing = get().toasts.find((t: ToastMessage) => t.message === toast.message)
+    if (existing) {
+      return existing.id
+    }
+
     const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
     const newToast: ToastMessage = {
       id,
@@ -19,14 +25,14 @@ export const useToastStore = create<ToastState>((set) => ({
       ...toast,
     }
 
-    set((state) => ({
+    set((state: ToastState) => ({
       toasts: [newToast, ...state.toasts].slice(0, 5), // Keep max 5 active toasts
     }))
 
     if (newToast.durationMs && newToast.durationMs > 0) {
       setTimeout(() => {
-        set((state) => ({
-          toasts: state.toasts.filter((t) => t.id !== id),
+        set((state: ToastState) => ({
+          toasts: state.toasts.filter((t: ToastMessage) => t.id !== id),
         }))
       }, newToast.durationMs)
     }
@@ -34,9 +40,9 @@ export const useToastStore = create<ToastState>((set) => ({
     return id
   },
 
-  removeToast: (id) =>
-    set((state) => ({
-      toasts: state.toasts.filter((t) => t.id !== id),
+  removeToast: (id: string) =>
+    set((state: ToastState) => ({
+      toasts: state.toasts.filter((t: ToastMessage) => t.id !== id),
     })),
 
   clearToasts: () => set({ toasts: [] }),

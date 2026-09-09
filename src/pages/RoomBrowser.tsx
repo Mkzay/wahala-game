@@ -29,10 +29,10 @@ export default function RoomBrowser() {
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-24 lg:pb-8 flex flex-col gap-6">
         
         {/* Header Hero Banner */}
-        <header className="rounded-3xl border border-w-border bg-gradient-to-r from-w-surface via-w-bg to-w-surface p-6 shadow-tactile-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <header className="game-panel ornate-frame rounded-[32px] border-2 border-[#7a4b2e]/25 bg-[linear-gradient(120deg,#fffdf6_0%,#ffe9bd_54%,#f8ce82_100%)] p-6 sm:p-8 shadow-[0_8px_0_rgba(122,75,46,.16),0_25px_55px_rgba(101,62,33,.16)] relative overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <span className="text-[10px] sm:text-xs font-display font-black uppercase tracking-widest text-w-orange bg-w-orange/10 border border-w-orange/30 px-3 py-1 rounded-full">
-              Live Battle Lobbies ⚔️
+            <span className="text-[10px] sm:text-xs font-display font-black uppercase tracking-widest text-w-orange bg-w-orange/15 border border-w-orange/40 px-3.5 py-1 rounded-full shadow-sm">
+              Live Parlor Lobbies 🃏 Open Tables
             </span>
             <h1 className="font-display text-2xl sm:text-4xl font-black text-w-text mt-2">
               Arena <span className="text-w-orange">Browser</span>

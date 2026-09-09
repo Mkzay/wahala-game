@@ -6,7 +6,7 @@ import { getAccessToken } from './api'
 class LiveSocketService implements ISocketService {
   private socket: Socket | null = null
 
-  public connect(gameId?: string): Socket | null {
+  public connect(gameId?: string, roomId?: string): Socket | null {
     if (this.socket) {
       return this.socket
     }
@@ -16,6 +16,9 @@ class LiveSocketService implements ISocketService {
     const query: Record<string, string> = {}
     if (gameId) {
       query.gameId = gameId
+    }
+    if (roomId) {
+      query.roomId = roomId
     }
 
     this.socket = io(wsUrl, {

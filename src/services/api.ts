@@ -1,7 +1,6 @@
 import axios, { AxiosError } from 'axios'
 import type { AppError } from '../types/api'
 import { useAuthStore } from '../store/authStore'
-import { toast } from '../store/toastStore'
 import { devLog } from '../store/devLogStore'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL
@@ -18,9 +17,14 @@ export const api = axios.create({
 
 let accessToken: string | null = null
 
-export const getAccessToken = (): string | null => accessToken
+export const getAccessToken = (): string | null => accessToken || localStorage.getItem('wahala_access_token')
 export const setAccessToken = (token: string | null): void => {
   accessToken = token
+  if (token) {
+    localStorage.setItem('wahala_access_token', token)
+  } else {
+    localStorage.removeItem('wahala_access_token')
+  }
 }
 
 export const getRefreshToken = (): string | null => localStorage.getItem('wahala_refresh_token')
@@ -75,8 +79,8 @@ api.interceptors.response.use(
       code: error.response?.data?.error?.statusCode ?? error.response?.status ?? 500,
     }
 
-    // Trigger toast notification for error
-    toast.error(appError.message)
+    // Log network error; callers handle contextual user feedback
+    // devLog handles network inspection
     devLog.network(`${originalRequest?.method?.toUpperCase() ?? 'HTTP'} ${originalRequest?.url ?? ''} → ${appError.code}: ${appError.message}`, appError.code)
 
     const isAuthEndpoint = originalRequest?.url?.includes('/auth/login') || originalRequest?.url?.includes('/auth/signup')

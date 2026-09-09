@@ -52,9 +52,11 @@ export default function Home() {
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-24 lg:pb-8 flex flex-col gap-6">
         
-        <header className="rounded-3xl border border-w-border bg-gradient-to-r from-w-surface via-w-bg to-w-surface p-6 sm:p-8 shadow-tactile-md relative overflow-hidden flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="absolute -right-16 -bottom-16 h-64 w-64 rounded-full bg-w-orange/10 blur-3xl pointer-events-none" />
-          <div className="absolute -left-16 -top-16 h-64 w-64 rounded-full bg-w-yellow/10 blur-3xl pointer-events-none" />
+        <header className="rounded-[32px] border-2 border-[#e8ab32]/50 bg-gradient-to-br from-[#07362d] via-[#05261f] to-[#021813] p-6 sm:p-8 shadow-[0_16px_40px_rgba(0,0,0,0.65),0_0_35px_rgba(232,171,50,0.15)] relative overflow-hidden flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="absolute -right-16 -bottom-16 h-64 w-64 rounded-full bg-w-orange/20 blur-3xl pointer-events-none" />
+          <div className="absolute -left-16 -top-16 h-64 w-64 rounded-full bg-w-yellow/25 blur-3xl pointer-events-none" />
+          <div className="absolute right-[29%] top-[-26px] hidden h-36 w-24 rotate-[18deg] rounded-2xl border-2 border-[#e8ab32] bg-gradient-to-br from-w-orange to-w-yellow shadow-[0_10px_25px_rgba(234,88,12,0.4)] lg:block" />
+          <div className="absolute right-[21%] top-[26px] hidden h-36 w-24 rotate-[7deg] rounded-2xl border-2 border-[#e8ab32]/80 bg-gradient-to-br from-[#087f7a] to-[#059669] shadow-[0_10px_25px_rgba(8,127,122,0.35)] lg:block" />
 
           <div className="relative z-10 max-w-2xl">
             <div className="flex items-center gap-2 mb-2">
@@ -63,7 +65,7 @@ export default function Home() {
               </span>
             </div>
             
-            <h1 className="mt-1 font-display text-2xl sm:text-4xl lg:text-5xl font-black text-w-text leading-tight text-balance">
+            <h1 className="mt-3 font-display text-2xl sm:text-4xl lg:text-5xl font-black text-w-text leading-[1.2] text-balance">
               Every round, <span className="text-w-orange">new trouble.</span>
             </h1>
             
@@ -71,7 +73,7 @@ export default function Home() {
               Real-time Whot card strategy with character class abilities, deck-shifting round rules, and global leaderboard ranking.
             </p>
 
-            <div className="mt-4 flex items-center gap-3 bg-w-surface/80 border border-w-border/60 rounded-2xl p-2.5 max-w-md">
+            <div className="mt-4 flex items-center gap-3 bg-[#06241e]/90 border border-[#e8ab32]/35 rounded-2xl p-3 max-w-md shadow-inner">
               <div className="h-8 w-8 rounded-xl bg-w-orange/20 border border-w-orange/40 flex items-center justify-center font-display font-black text-xs text-w-orange flex-shrink-0">
                 Lv.{profile?.level ?? '-'}
               </div>
@@ -90,7 +92,7 @@ export default function Home() {
           <div className="relative z-10 flex flex-col sm:flex-row lg:flex-col gap-3 flex-shrink-0 lg:w-64">
             <Link
               to="/rooms"
-              className="w-full rounded-2xl bg-gradient-to-r from-w-orange to-w-yellow hover:from-w-orange/95 hover:to-w-yellow/95 px-6 py-3.5 flex items-center justify-center gap-2.5 font-display text-sm font-black text-w-surface shadow-tactile-md hover:scale-[1.02] active:scale-[0.98] transition-[transform,background-color] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-w-orange"
+              className="w-full rounded-2xl border-2 border-[#e8ab32] bg-gradient-to-r from-w-orange to-[#f97316] hover:brightness-110 px-6 py-3.5 flex items-center justify-center gap-2.5 font-display text-sm font-black text-[#fffdf8] shadow-[0_6px_0_#9a3412,0_14px_28px_rgba(234,88,12,0.35)] hover:-translate-y-0.5 active:translate-y-1 active:shadow-[0_2px_0_#9a3412] transition-[transform,background-color] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-w-orange"
             >
               <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24">
                 <path d="M8 5v14l11-7z" />
@@ -101,7 +103,7 @@ export default function Home() {
             <div className="flex gap-2 w-full">
               <Link
                 to="/rooms/create"
-                className="flex-1 rounded-xl border border-w-border hover:border-w-orange/50 bg-w-surface px-4 py-2.5 flex items-center justify-center gap-1.5 font-display text-xs font-bold text-w-text hover:bg-w-surface-2 transition-[colors,border-color] shadow-tactile-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange"
+                className="flex-1 rounded-xl border border-[#e8ab32]/40 hover:border-w-orange bg-[#0a2c24] px-4 py-2.5 flex items-center justify-center gap-1.5 font-display text-xs font-bold text-[#fffdf8] hover:bg-[#0e372e] shadow-tactile-sm active:scale-[0.97] transition-[colors,border-color] shadow-tactile-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-orange"
               >
                 <svg className="h-4 w-4 fill-current text-w-orange" viewBox="0 0 24 24">
                   <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
@@ -111,7 +113,7 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => setShowJoinModal(true)}
-                className="flex-1 rounded-xl border border-w-border hover:border-w-yellow/50 bg-w-surface px-4 py-2.5 flex items-center justify-center gap-1.5 font-display text-xs font-bold text-w-text hover:bg-w-surface-2 transition-[colors,border-color] shadow-tactile-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-yellow"
+                className="flex-1 rounded-xl border border-[#e8ab32]/40 hover:border-w-yellow bg-[#0a2c24] px-4 py-2.5 flex items-center justify-center gap-1.5 font-display text-xs font-bold text-[#fffdf8] hover:bg-[#0e372e] shadow-tactile-sm active:scale-[0.97] transition-[colors,border-color] shadow-tactile-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-w-yellow"
               >
                 <svg className="h-4 w-4 fill-current text-w-yellow" viewBox="0 0 24 24">
                   <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
@@ -175,7 +177,7 @@ export default function Home() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 w-full">
-                <div className="flex-1 rounded-xl border border-w-border bg-w-bg px-3.5 py-2.5 focus-within:border-w-orange transition-colors flex items-center gap-2">
+                <div className="flex-1 rounded-xl border border-[#e8ab32]/30 bg-[#06201a] px-3.5 py-2.5 focus-within:border-w-yellow transition-colors flex items-center gap-2">
                   <svg className="h-4 w-4 text-w-text-3 flex-shrink-0 fill-current" viewBox="0 0 24 24">
                     <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
                   </svg>
@@ -186,7 +188,7 @@ export default function Home() {
                     autoComplete="off"
                     spellCheck={false}
                     placeholder="Search room name or host…"
-                    className="w-full bg-transparent text-xs outline-none placeholder:text-w-text-3"
+                    className="w-full bg-transparent text-xs outline-none text-[#fffdf8] placeholder:text-[#a8977c]"
                   />
                 </div>
 

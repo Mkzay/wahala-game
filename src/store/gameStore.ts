@@ -5,7 +5,6 @@ import type {
   GameEndedPayload,
   GameSocketEvents,
   GameState,
-  GameStateSnapshotPayload,
   PlayerDisconnectedPayload,
   ReactionWindowOpenedPayload,
   RoundEndedPayload,
@@ -27,7 +26,7 @@ export interface GameStore {
   setGameState: (gameState: GameState | null) => void
   setCanAccessGame: (canAccessGame: boolean) => void
   setConnected: (isConnected: boolean) => void
-  applyStateSnapshot: (payload: GameStateSnapshotPayload) => void
+  applyStateSnapshot: (payload: any) => void
   onCardPlayed: (payload: CardPlayedPayload) => void
   onTurnChanged: (payload: TurnChangedPayload) => void
   onRuleActivated: (payload: RuleActivatedPayload) => void
@@ -59,14 +58,18 @@ export const useGameStore = create<GameStore>((set) => ({
   setGameState: (gameState) => set({ gameState }),
   setCanAccessGame: (canAccessGame) => set({ canAccessGame }),
   setConnected: (isConnected) => set({ isConnected }),
-  applyStateSnapshot: ({ game }) =>
+  applyStateSnapshot: (payload: any) => {
+    const game = payload?.game ?? payload
+    if (!game || !game.phase) return
+
     set({
       gameState: game,
       gamePhase: phaseMap[game.phase] ?? 'board',
       canAccessGame: true,
       winnerPlayerId: game.winnerId ?? null,
       lastEvent: 'game:stateSnapshot',
-    }),
+    })
+  },
   onCardPlayed: (payload) =>
     set((state) => {
       if (!state.gameState || state.gameState.gameId !== payload.gameId) {
@@ -76,7 +79,7 @@ export const useGameStore = create<GameStore>((set) => ({
       return {
         gameState: {
           ...state.gameState,
-          currentTurnPlayerId: payload.nextTurnPlayerId,
+          currentTurnPlayerId: payload.nextTurnPlayerId ?? (payload as CardPlayedPayload & { nextPlayerId?: string }).nextPlayerId ?? null,
         },
         lastEvent: 'card:played',
       }
@@ -112,7 +115,7 @@ export const useGameStore = create<GameStore>((set) => ({
       return {
         gameState: {
           ...state.gameState,
-          round: payload.round,
+          round: payload.round ?? (payload as RoundEndedPayload & { roundNumber?: number }).roundNumber ?? state.gameState.round,
         },
         gamePhase: 'roundEnd',
         lastEvent: 'round:ended',
@@ -126,7 +129,7 @@ export const useGameStore = create<GameStore>((set) => ({
 
       return {
         gamePhase: 'gameEnd',
-        winnerPlayerId: payload.winnerPlayerId,
+        winnerPlayerId: payload.winnerPlayerId ?? (payload as GameEndedPayload & { winnerId?: string | null }).winnerId ?? null,
         canAccessGame: true,
         lastEvent: 'game:ended',
       }
@@ -160,7 +163,7 @@ export const useGameStore = create<GameStore>((set) => ({
           ...state.gameState,
           reactionWindow: state.gameState.reactionWindow
             ? { ...state.gameState.reactionWindow, expiresAtMs: payload.closesAtMs }
-            : { targetUserId: '', attackerUserId: '', penaltyType: '', penaltyAmount: 0, expiresAtMs: payload.closesAtMs },
+            : { targetUserId: '', attackerUserId: '', penaltyType: 'pick_2', penaltyAmount: 2, expiresAtMs: payload.closesAtMs },
         },
         lastEvent: 'reaction:window:opened',
       }

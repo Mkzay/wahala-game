@@ -30,15 +30,15 @@ export default function RoundEnd() {
       <section className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
         
         {/* Left Side: Highlighted Winner Card (occupies 5 cols) */}
-        <article className="col-span-1 md:col-span-5 rounded-2xl border border-w-yellow/50 bg-gradient-to-br from-w-yellow/15 via-w-surface to-w-surface-2 p-6 flex flex-col justify-between shadow-tactile-md">
+        <article className="col-span-1 md:col-span-5 rounded-2xl border-2 border-[#e8ab32] bg-gradient-to-br from-[#064e43] via-[#022c25] to-[#011a16] p-6 flex flex-col justify-between shadow-[0_12px_28px_rgba(0,0,0,0.5),0_0_25px_rgba(232,171,50,0.25)] text-[#fffdf8]">
           <div>
             <span className="text-[10px] font-bold uppercase tracking-widest text-w-yellow block">
               Round Winner
             </span>
-            <h3 className="font-display text-2xl font-black mt-1 text-w-text">
+            <h3 className="font-display text-2xl font-black mt-1 text-[#fffdf8]">
               Mkzay (You)
             </h3>
-            <p className="mt-2 text-xs text-w-text-2 leading-relaxed">
+            <p className="mt-2 text-xs text-[#ebd9b7] leading-relaxed">
               Successfully cleared all cards from hand first. Triggered "Joker Leap" ability to secure the win!
             </p>
           </div>

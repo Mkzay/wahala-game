@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { socketService } from '../services/socketService'
 import { useGameState } from './useGameState'
 import { devLog } from '../store/devLogStore'
+import { toast } from '../store/toastStore'
 
 interface UseGameSocketOptions {
   gameId: string
@@ -45,11 +46,18 @@ export function useGameSocket({
       devLog.socket(`Socket disconnected from gameId: ${gameId}`)
     }
 
+    const handleGameError = (payload: { message: string }) => {
+      devLog.socket(`[WS Error] ${payload?.message ?? 'Game error'}`)
+      if (payload?.message) {
+        toast.error(payload.message, 'Move Rejected')
+      }
+    }
+
     socketService.on('connect', handleConnect)
     socketService.on('disconnect', handleDisconnect)
     socketService.on('game:stateSnapshot', applyStateSnapshot)
     socketService.on('game:card:played', onCardPlayed)
-    socketService.on('game:error', onCardPlayed)
+    socketService.on('game:error', handleGameError)
 
     if (socketService.isConnected()) {
       handleConnect()
@@ -60,7 +68,7 @@ export function useGameSocket({
       socketService.off('disconnect', handleDisconnect)
       socketService.off('game:stateSnapshot', applyStateSnapshot)
       socketService.off('game:card:played', onCardPlayed)
-      socketService.off('game:error', onCardPlayed)
+      socketService.off('game:error', handleGameError)
       socketService.disconnect()
     }
   }, [

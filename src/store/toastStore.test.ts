@@ -27,4 +27,11 @@ describe('toastStore', () => {
     expect(toasts[0].type).toBe('wahala')
     expect(toasts[0].title).toBe('WAHALA Alert! 💥')
   })
-})
+  it('deduplicates identical toast messages', () => {
+    toast.error('At least 2 players are required to start the game.', 'Error 1')
+    toast.error('At least 2 players are required to start the game.', 'Error 2')
+
+    const toasts = useToastStore.getState().toasts
+    expect(toasts).toHaveLength(1)
+  })
+});

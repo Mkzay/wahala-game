@@ -29,6 +29,7 @@ Before making any changes to `wahala-game`, read the context documents in this e
   - **Phase 4 (Component Decoupling & Toast System)**: `GameBoard.tsx` & `Lobby.tsx` decoupled from local mock loops to socket emissions. Option A Custom Glassmorphic Toast System implemented (`toastStore.ts` + `ToastContainer.tsx`). `routes.test.tsx` route guards verified.
   - **Live Authentication**: Real HTTP authentication against `http://localhost:3001/v1/auth/login` and `/auth/signup` in `authService.ts` and `Auth.tsx`.
   - **Live Dev Error Console (`<DevErrorConsole />`)**: In-app live error console overlay mounted at root level (`devLogStore.ts` + `DevErrorConsole.tsx`), capturing all HTTP errors, socket disconnects, unhandled promise rejections, and runtime script errors.
+  - **Token Reload Persistence**: `getAccessToken()` and `setAccessToken()` in `api.ts` persist the token to `localStorage` so protected API endpoints (`GET /v1/rooms`) retain `Authorization: Bearer <token>` across page reloads.
 
 ### Explicitly Deferred Screens (Require Follow-Up Plan Maps)
 The following screens have completed UI redesigns but are deferred for server hook/store decoupling in subsequent phase maps:
@@ -56,6 +57,9 @@ The following decisions were explicitly agreed upon during planning and **MUST N
 7. **Password Toggle**: Password inputs in `Auth.tsx` feature an interactive eye toggle button for Sign In and Sign Up tabs.
 8. **Package Dependencies**: All production packages (`react-router-dom`, `@tanstack/react-query`, `axios`, `socket.io-client`, `zustand`) are declared directly in `wahala-game/package.json` for Vercel deployment.
 9. **Per-Phase Definition of Done**: Unit/hook tests must be co-located with deliverables in each phase. A phase is not complete until `npm test` and `npm run build` pass with 0 errors.
+10. **Error Diagnostics Protocol**: When investigating an error during testing:
+    - If it is a **Frontend issue**: Report the diagnosis and proposed fix to the user FIRST, and wait for explicit approval before modifying any code.
+    - If it is a **Backend issue**: Do NOT fix it or modify backend code. Report the details to the user.
 
 ---
 
