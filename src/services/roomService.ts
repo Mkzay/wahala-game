@@ -46,6 +46,7 @@ export function transformRoom(raw: APIRoom): Room {
     roundCount: raw.roundCount,
     timerEnabled: raw.timerEnabled,
     status: raw.status,
+    activeGameId: raw.activeGameId ?? null,
   }
 }
 

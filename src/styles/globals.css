@@ -73,12 +73,25 @@ button, a { -webkit-tap-highlight-color: transparent; }
   50% { box-shadow: 0 0 38px rgba(234, 88, 12, 0.8), inset 0 0 25px rgba(234, 88, 12, 0.35); border-color: #f97316; }
 }
 @keyframes turnGlowPulse {
-  0%, 100% { box-shadow: 0 0 16px rgba(232, 171, 50, 0.4); }
-  50% { box-shadow: 0 0 32px rgba(232, 171, 50, 0.8); }
+  0%, 100% {
+    box-shadow: 0 0 16px rgba(232, 171, 50, 0.4), inset 0 0 10px rgba(232, 171, 50, 0.2);
+    border-color: #e8ab32;
+  }
+  50% {
+    box-shadow: 0 0 32px rgba(232, 171, 50, 0.9), 0 0 45px rgba(234, 88, 12, 0.45), inset 0 0 18px rgba(232, 171, 50, 0.4);
+    border-color: #f59e0b;
+  }
+}
+@keyframes tableShake {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  20% { transform: translate(-3px, 2px) rotate(-0.3deg); }
+  40% { transform: translate(3px, -2px) rotate(0.3deg); }
+  60% { transform: translate(-2px, 1px) rotate(-0.2deg); }
+  80% { transform: translate(2px, -1px) rotate(0.2deg); }
 }
 .animate-card-slam { animation: cardSlam 0.3s cubic-bezier(0.23, 1, 0.32, 1) both; }
 .animate-reaction-tension { animation: reactionTension 1.2s ease-in-out infinite; }
-
+.animate-table-shake { animation: tableShake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
 
 .game-card { --suit-color: var(--color-orange); position: relative; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; flex-shrink: 0; color: var(--color-text); background: linear-gradient(155deg, #fffdf8 0%, #fffbf2 55%, color-mix(in srgb, var(--suit-color) 16%, #fff9ec) 100%); border: 2px solid color-mix(in srgb, var(--suit-color) 78%, #3a2211); border-radius: 14px; box-shadow: var(--shadow-card), inset 0 0 0 2px #fffdf8, inset 0 0 22px color-mix(in srgb, var(--suit-color) 12%, transparent); transition: transform 180ms cubic-bezier(0.23, 1, 0.32, 1), filter 180ms cubic-bezier(0.23, 1, 0.32, 1), box-shadow 180ms cubic-bezier(0.23, 1, 0.32, 1); font-family: var(--font-card); }
 .game-card::before { content: ''; position: absolute; inset: 6px; border: 1px dashed color-mix(in srgb, var(--suit-color) 50%, transparent); border-radius: 8px; pointer-events: none; }
@@ -109,12 +122,21 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .opponent-left { left: 4%; top: 50%; transform: translateY(-50%); }
 .opponent-top { left: 50%; top: 7%; transform: translateX(-50%); }
 .opponent-right { right: 4%; top: 50%; transform: translateY(-50%); }
+.opponent-bottom { left: 50%; bottom: 12%; transform: translateX(-50%); }
+
+.opponent-top-left { left: 16%; top: 9%; }
+.opponent-top-right { right: 16%; top: 9%; }
+.opponent-bottom-left { left: 16%; bottom: 10%; }
+.opponent-bottom-right { right: 16%; bottom: 10%; }
+
 .opponent-left.is-turn, .opponent-right.is-turn { animation: turnGlowPulse 2s ease-in-out infinite; transform: translateY(-50%) scale(1.08); }
-.opponent-top.is-turn { animation: turnGlowPulse 2s ease-in-out infinite; transform: translateX(-50%) scale(1.08); }
+.opponent-top.is-turn, .opponent-bottom.is-turn { animation: turnGlowPulse 2s ease-in-out infinite; transform: translateX(-50%) scale(1.08); }
+.opponent-top-left.is-turn, .opponent-top-right.is-turn, .opponent-bottom-left.is-turn, .opponent-bottom-right.is-turn { animation: turnGlowPulse 2s ease-in-out infinite; transform: scale(1.08); }
 @media (max-width: 640px) {
-  .opponent-left { left: 3%; }
-  .opponent-right { right: 3%; }
-  .opponent-top { top: 8%; }
+  .opponent-left { left: 2.5%; }
+  .opponent-right { right: 2.5%; }
+  .opponent-top { top: 6%; }
+  .opponent-bottom { bottom: 11%; }
   .game-card-md { width: 76px; height: 112px; padding: 9px; border-radius: 13px; }
   .game-card-md::before { inset: 5px; border-radius: 9px; }
   .game-card-md .card-glyph svg { width: 31px; height: 31px; }

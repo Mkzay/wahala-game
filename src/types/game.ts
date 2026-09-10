@@ -67,6 +67,7 @@ export interface GameState {
   pendingPenaltyType?: 'pick_2' | 'pick_3' | null
   timerSeconds: number | null
   winnerId: string | null
+  roundWinnerId?: string | null
 }
 
 export interface GameStateSnapshotPayload {

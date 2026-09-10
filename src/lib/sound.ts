@@ -12,6 +12,8 @@ export type SoundName =
   | 'draw'
   | 'tick'
   | 'timer'
+  | 'heartbeat'
+  | 'tension'
   | 'fanfare'
   | 'victory'
 
@@ -165,6 +167,26 @@ export function playUiSound(name: SoundName): void {
         gain.connect(ctx.destination)
         osc.start(now)
         osc.stop(now + 0.025)
+        break
+      }
+
+      case 'heartbeat':
+      case 'tension': {
+        // High-tension check-up heartbeat: rhythmic sub-bass "lub-dub" thumps
+        [0, 0.12].forEach((offset, idx) => {
+          const osc = ctx.createOscillator()
+          const gain = ctx.createGain()
+          osc.type = 'sine'
+          const startFreq = idx === 0 ? 82 : 72
+          osc.frequency.setValueAtTime(startFreq, now + offset)
+          osc.frequency.exponentialRampToValueAtTime(36, now + offset + 0.14)
+          gain.gain.setValueAtTime(0.14, now + offset)
+          gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.15)
+          osc.connect(gain)
+          gain.connect(ctx.destination)
+          osc.start(now + offset)
+          osc.stop(now + offset + 0.16)
+        })
         break
       }
 

@@ -8,6 +8,13 @@ class LiveSocketService implements ISocketService {
 
   public connect(gameId?: string, roomId?: string): Socket | null {
     if (this.socket) {
+      if (gameId) {
+        this.socket.emit('game:join', { gameId })
+        this.socket.emit('game:state:request', { gameId })
+      }
+      if (roomId) {
+        this.socket.emit('room:join', { roomId })
+      }
       return this.socket
     }
 

@@ -5,6 +5,7 @@ import {
   Navigate,
   Outlet,
   useParams,
+  useLocation,
   type RouteObject,
   createBrowserRouter,
 } from 'react-router-dom'
@@ -57,9 +58,10 @@ interface AppRouteDefinition {
 
 function AuthGuard() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  const location = useLocation()
 
   if (!isAuthenticated) {
-    return <Navigate to="/auth" replace />
+    return <Navigate to="/auth" state={{ from: location }} replace />
   }
 
   return <Outlet />
@@ -67,14 +69,10 @@ function AuthGuard() {
 
 function GameGuard() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
-  const canAccessGame = useGameStore((state) => state.canAccessGame)
+  const location = useLocation()
 
   if (!isAuthenticated) {
-    return <Navigate to="/auth" replace />
-  }
-
-  if (!canAccessGame) {
-    return <Navigate to="/rooms" replace />
+    return <Navigate to="/auth" state={{ from: location }} replace />
   }
 
   return <Outlet />
@@ -107,6 +105,7 @@ const routeDefinitions: AppRouteDefinition[] = [
   { path: '/leaderboard', guard: 'auth', element: <Leaderboard /> },
   { path: '/rooms/create', guard: 'auth', element: <CreateRoom /> },
   { path: '/rooms/:roomId', guard: 'auth', element: <Lobby /> },
+  { path: '/spectate', guard: 'auth', element: <Spectator /> },
   { path: '/game/:gameId/spectate', guard: 'auth', element: <Spectator /> },
   { path: '/profile/:userId', guard: 'auth', element: <Profile /> },
   { path: '/settings', guard: 'auth', element: <Settings /> },

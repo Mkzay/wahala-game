@@ -69,8 +69,14 @@ export default function Lobby() {
       setEditMaxPlayers(room.maxPlayers)
       setEditRoundCount(room.roundCount ?? 5)
       setEditTimerEnabled(room.timerEnabled)
+
+      if (room.status === 'in_progress' && room.activeGameId) {
+        stopLobbyMusic()
+        setCanAccessGame(true)
+        navigate(`/game/${room.activeGameId}/board`)
+      }
     }
-  }, [room])
+  }, [room, navigate, setCanAccessGame])
 
   // Real-time socket sync for lobby members
   useEffect(() => {

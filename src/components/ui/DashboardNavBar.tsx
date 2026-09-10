@@ -43,6 +43,15 @@ export function DashboardNavBar() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <Link
+            to="/spectate"
+            title="Watch Live Match"
+            aria-label="Watch Live Match"
+            className="flex items-center gap-1.5 rounded-xl border border-[#38bdf8]/50 bg-[#0c4a6e]/40 px-3 py-1.5 text-xs font-black text-[#38bdf8] shadow-tactile-sm transition hover:scale-105 hover:border-[#38bdf8]"
+          >
+            <span className="h-2 w-2 rounded-full bg-[#38bdf8] animate-ping" />
+            <span>Watch Live</span>
+          </Link>
           <button type="button" onClick={toggleSound} title={soundOn ? 'Mute game sounds' : 'Enable game sounds'} aria-label={soundOn ? 'Mute game sounds' : 'Enable game sounds'} className="icon-tile hidden h-9 w-9 rounded-xl text-w-cyan transition hover:-translate-y-0.5 hover:border-w-cyan sm:grid"><Icon name={soundOn ? 'sound' : 'mute'} size={17} /></button>
           <Link to="/settings" title="Settings" aria-label="Settings" className={`icon-tile h-9 w-9 rounded-xl transition hover:-translate-y-0.5 ${isSettings ? 'border-w-orange text-w-orange' : 'text-w-text-2 hover:border-w-orange hover:text-w-orange'}`}><Icon name="settings" size={17} /></Link>
           <Link to="/profile/preview-user" className="grid h-9 w-9 place-items-center rounded-xl border border-w-orange/60 bg-w-orange/15 font-display text-xs font-black text-w-orange transition hover:rotate-3">{(user?.username || 'P').slice(0, 2).toUpperCase()}</Link>

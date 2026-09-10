@@ -14,4 +14,5 @@ export interface Room {
   roundCount: number | null
   timerEnabled: boolean
   status: RoomStatus
+  activeGameId?: string | null
 }

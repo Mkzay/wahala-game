@@ -42,6 +42,7 @@ export interface APIRoom {
   roundCount: number | null
   timerEnabled: boolean
   status: 'waiting' | 'in_progress' | 'finished' | 'disbanded'
+  activeGameId?: string | null
 }
 
 export interface APIRoomReadyPlayer {

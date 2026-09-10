@@ -1,6 +1,6 @@
 import type { SVGProps } from 'react'
 
-export type IconName = 'home' | 'rooms' | 'rank' | 'history' | 'book' | 'settings' | 'sun' | 'moon' | 'sound' | 'mute' | 'logout' | 'spark' | 'sword' | 'shield' | 'brain' | 'crown' | 'compass' | 'cards' | 'users' | 'play' | 'plus' | 'search' | 'close' | 'arrow'
+export type IconName = 'home' | 'rooms' | 'rank' | 'history' | 'book' | 'settings' | 'sun' | 'moon' | 'sound' | 'mute' | 'logout' | 'spark' | 'sword' | 'shield' | 'brain' | 'crown' | 'compass' | 'cards' | 'users' | 'play' | 'plus' | 'search' | 'close' | 'arrow' | 'zap' | 'lock' | 'flame' | 'shuffle' | 'eye'
 
 interface IconProps extends SVGProps<SVGSVGElement> { name: IconName; size?: number }
 
@@ -29,6 +29,11 @@ const paths: Record<IconName, string> = {
   search: 'm20 20-4.3-4.3M10.5 17a6.5 6.5 0 1 0 0-13 6.5 6.5 0 0 0 0 13Z',
   close: 'm6 6 12 12M18 6 6 18',
   arrow: 'M5 12h14M13 6l6 6-6 6',
+  zap: 'M13 2 3 14h9l-1 8 10-12h-9l1-8Z',
+  lock: 'M7 11V7a5 5 0 0 1 10 0v4M5 11h14v10H5z',
+  flame: 'M12 3c1 3.5 3.5 5 3.5 8a5.5 5.5 0 1 1-11 0c0-3 2.5-4.5 3.5-8 1 2 2 3 4 3Z',
+  shuffle: 'M16 3h5v5M4 20l17-17M21 16v5h-5M15 15l6 6M4 4l5 5',
+  eye: 'M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7ZM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z',
 }
 
 export function Icon({ name, size = 20, ...props }: IconProps) {

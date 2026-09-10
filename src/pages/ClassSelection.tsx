@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { useParams } from 'react-router-dom'
 import { useGameSocket } from '../hooks/useGameSocket'
@@ -8,6 +8,7 @@ import { useAuthStore } from '../store/authStore'
 import { socketService } from '../services/socketService'
 import { toast } from '../store/toastStore'
 import { playUiSound } from '../lib/sound'
+import { useWebMcp } from '../hooks/useWebMcp'
 
 type ClassName = 'The Joker' | 'The Wall' | 'The Striker' | 'The Mastermind'
 
@@ -39,11 +40,13 @@ export default function ClassSelection() {
 
   useGameSocket({ gameId, enabled: gameId.length > 0 })
   useGamePhaseRouting()
+  useWebMcp({ gameId, enabled: gameId.length > 0 })
 
   const gameState = useGameStore((s) => s.gameState)
   const user = useAuthStore((s) => s.user)
 
   const myPlayer = gameState?.players?.find((p) => p.userId === user?.id)
+  const isSpectator = !myPlayer
   const currentSelected = myPlayer?.class
 
   const [selected, setSelected] = useState<ClassName | null>(null)
@@ -167,11 +170,33 @@ export default function ClassSelection() {
             Each archetype dictates passive board advantages and an active tactical power you can release during your turn.
           </p>
 
-          {currentSelected && (
+          {isSpectator ? (
+            <div className="mt-3 flex flex-col items-center gap-2">
+              <span className="inline-flex items-center gap-2 rounded-full border border-[#38bdf8]/40 bg-[#0c4a6e]/40 px-3.5 py-1 text-xs font-black uppercase tracking-wider text-[#38bdf8] shadow-tactile-sm">
+                <span className="h-2 w-2 rounded-full bg-[#38bdf8] animate-ping" />
+                Live Spectator Feed · Watching Contender Draft
+              </span>
+              <div className="mt-2 w-full max-w-lg rounded-2xl border border-[#38bdf8]/30 bg-[#071d17]/90 p-3 shadow-lg backdrop-blur-md">
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#38bdf8] mb-2 text-center">
+                  Contender Stance Lock-In Status
+                </p>
+                <div className="grid grid-cols-2 gap-2 text-left">
+                  {gameState?.players?.map((p) => (
+                    <div key={p.userId} className="flex items-center justify-between px-3 py-1.5 rounded-xl border border-[#1b3b33] bg-[#041511]/80 text-xs">
+                      <span className="font-semibold text-[#fffdf8]">{p.username}</span>
+                      <span className={`text-[10px] font-bold ${p.class ? 'text-[#10b981]' : 'text-[#e8ab32] animate-pulse'}`}>
+                        {p.class ? `✓ ${p.class.toUpperCase()}` : 'Choosing…'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : currentSelected ? (
             <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-[#10b981]/40 bg-[#10b981]/15 px-4 py-1 text-xs font-black text-[#10b981] shadow-sm">
               <span>✓ Confirmed: {currentSelected.toUpperCase()}</span>
             </div>
-          )}
+          ) : null}
         </header>
 
         {/* 4 Class Cards Grid */}
@@ -271,24 +296,33 @@ export default function ClassSelection() {
           })}
         </section>
 
-        {/* Lock In Button */}
+        {/* Lock In Button vs Spectator Status */}
         <footer className="mt-8 sm:mt-10 flex justify-center">
-          <button
-            type="button"
-            disabled={!selected || isSubmitting}
-            onClick={handleLockIn}
-            className={`w-full max-w-sm rounded-2xl py-4 px-8 font-display text-sm font-black tracking-wider uppercase transition-[transform,background-color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8ab32] active:scale-[0.97] ${
-              selected && !isSubmitting
-                ? 'bg-gradient-to-r from-[#ea580c] via-[#e8ab32] to-[#ea580c] text-[#041511] shadow-[0_8px_24px_rgba(234,88,12,0.4)] hover:brightness-110'
-                : 'border border-[#1b3b33] bg-[#071d17]/80 text-[#8ba79e] cursor-not-allowed shadow-none'
-            }`}
-          >
-            {isSubmitting
-              ? 'Locking In Stance…'
-              : selected
-                ? `Lock In ${selected}`
-                : 'Choose a Class to Lock In'}
-          </button>
+          {isSpectator ? (
+            <div className="flex items-center gap-3 rounded-2xl border border-[#38bdf8]/40 bg-[#071d17]/95 px-8 py-4 shadow-xl backdrop-blur-md">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#38bdf8] animate-ping" />
+              <p className="font-display text-xs sm:text-sm font-black uppercase tracking-wider text-[#38bdf8]">
+                Awaiting Contender Draft Locks… Match Resumes Automatically
+              </p>
+            </div>
+          ) : (
+            <button
+              type="button"
+              disabled={!selected || isSubmitting}
+              onClick={handleLockIn}
+              className={`w-full max-w-sm rounded-2xl py-4 px-8 font-display text-sm font-black tracking-wider uppercase transition-[transform,background-color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e8ab32] active:scale-[0.97] ${
+                selected && !isSubmitting
+                  ? 'bg-gradient-to-r from-[#ea580c] via-[#e8ab32] to-[#ea580c] text-[#041511] shadow-[0_8px_24px_rgba(234,88,12,0.4)] hover:brightness-110'
+                  : 'border border-[#1b3b33] bg-[#071d17]/80 text-[#8ba79e] cursor-not-allowed shadow-none'
+              }`}
+            >
+              {isSubmitting
+                ? 'Locking In Stance…'
+                : selected
+                  ? `Lock In ${selected}`
+                  : 'Choose a Class to Lock In'}
+            </button>
+          )}
         </footer>
       </div>
     </div>

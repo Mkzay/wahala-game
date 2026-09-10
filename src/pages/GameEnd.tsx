@@ -1,21 +1,30 @@
-﻿import { useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Link, useParams } from 'react-router-dom'
+import { useGameSocket } from '../hooks/useGameSocket'
 import { useGamePhaseRouting } from '../hooks/useGamePhaseRouting'
+import { useWebMcp } from '../hooks/useWebMcp'
+import { useGameStore } from '../store/gameStore'
+import { useAuthStore } from '../store/authStore'
 import { playUiSound } from '../lib/sound'
 
 export default function GameEnd() {
+  const { gameId = '' } = useParams()
+
+  useGameSocket({ gameId, enabled: gameId.length > 0 })
   useGamePhaseRouting()
+  useWebMcp({ gameId, enabled: gameId.length > 0 })
+
+  const gameState = useGameStore((s) => s.gameState)
+  const user = useAuthStore((s) => s.user)
 
   useEffect(() => {
     playUiSound('fanfare')
   }, [])
 
-  const stats = [
-    { label: 'Total XP Earned', value: '+372 XP', color: 'text-[#e8ab32]' },
-    { label: 'Rounds Won', value: '3 / 5', color: 'text-[#10b981]' },
-    { label: 'Coins Acquired', value: '+170 Cowries', color: 'text-[#818cf8]' },
-    { label: 'Abilities Cast', value: '8 Times', color: 'text-[#ea580c]' },
-  ]
+  const players = gameState?.players ?? []
+  const sortedPlayers = [...players].sort((a, b) => (a.cumulativeScore ?? 0) - (b.cumulativeScore ?? 0))
+  const champion = players.find((p) => p.userId === gameState?.winnerId) ?? sortedPlayers[0]
+  const isUserChampion = champion?.userId === user?.id
 
   return (
     <main className="relative min-h-screen w-full felt-table-bg text-[#fffdf8] flex flex-col justify-center px-4 pt-6 pb-24 md:pb-8 select-none">
@@ -33,7 +42,7 @@ export default function GameEnd() {
             Parlor <span className="text-[#e8ab32]">Victory Summary</span>
           </h1>
           <p className="text-xs sm:text-sm text-[#c2d6ce] mt-2">
-            5 tense rounds settled on the felt. Rankings determined by lowest accumulated point load.
+            Tournament concluded. Final rankings determined by lowest accumulated point load.
           </p>
         </header>
 
@@ -41,7 +50,6 @@ export default function GameEnd() {
         <section className="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
           {/* Winner Showcase Card */}
           <article className="col-span-1 md:col-span-5 rounded-3xl border border-[#c48d28]/60 bg-gradient-to-br from-[#0a271f] via-[#071d17] to-[#041511] p-6 sm:p-7 flex flex-col justify-between shadow-[0_16px_36px_rgba(0,0,0,0.5)] relative overflow-hidden">
-            {/* Top brass highlight line */}
             <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-[#e8ab32] to-transparent" />
 
             <div>
@@ -49,13 +57,13 @@ export default function GameEnd() {
                 🏆
               </div>
               <h2 className="font-display text-2xl sm:text-3xl font-black mt-5 text-[#fffdf8]">
-                Table Champion
+                {champion ? (isUserChampion ? `${champion.username} (You)` : champion.username) : 'Tournament Champion'}
               </h2>
               <p className="text-xs font-display font-black text-[#ea580c] uppercase tracking-wider mt-1.5">
-                Chaos Virtuoso · The Joker Archetype
+                {champion?.class ? `Archetype: ${champion.class.toUpperCase()}` : 'GRAND MASTER'}
               </p>
               <p className="mt-3 text-xs text-[#c2d6ce] leading-relaxed">
-                Maintained the lowest final point count by cleanly executing suit counters, reaction deflections, and swift card drops.
+                Maintained the lowest final point count ({champion?.cumulativeScore ?? 0} penalty pts) through tactical card play, reaction defense, and decisive execution.
               </p>
             </div>
 
@@ -64,32 +72,62 @@ export default function GameEnd() {
                 Final Standing
               </span>
               <span className="text-xs font-black px-3 py-1 rounded-full bg-[#e8ab32]/20 border border-[#e8ab32]/50 text-[#e8ab32]">
-                Rank #1
+                Rank #1 · Champion
               </span>
             </div>
           </article>
 
-          {/* Stats & Actions */}
+          {/* Standings & Actions */}
           <div className="col-span-1 md:col-span-7 rounded-3xl border border-[#1b3b33] bg-[#071d17]/90 p-6 sm:p-7 shadow-[0_16px_36px_rgba(0,0,0,0.4)] flex flex-col justify-between backdrop-blur-md">
             <div>
-              <h3 className="font-display text-xs font-black uppercase tracking-wider text-[#e8ab32] border-b border-[#1b3b33] pb-3 mb-5">
-                Match Performance Breakdown
+              <h3 className="font-display text-xs font-black uppercase tracking-wider text-[#e8ab32] border-b border-[#1b3b33] pb-3 mb-4">
+                Tournament Final Standings
               </h3>
 
-              <div className="grid grid-cols-2 gap-3.5">
-                {stats.map((stat) => (
-                  <article
-                    key={stat.label}
-                    className="rounded-2xl border border-[#1b3b33] bg-[#041511]/80 p-3.5 sm:p-4 shadow-sm"
-                  >
-                    <p className={`font-display text-xl font-black ${stat.color}`}>
-                      {stat.value}
-                    </p>
-                    <p className="text-[10px] text-[#8ba79e] uppercase font-black tracking-wider mt-1">
-                      {stat.label}
-                    </p>
-                  </article>
-                ))}
+              <div className="space-y-2.5">
+                {sortedPlayers.map((player, idx) => {
+                  const isYou = player.userId === user?.id
+                  const isFirst = idx === 0
+
+                  return (
+                    <article
+                      key={player.userId}
+                      className={`flex items-center justify-between rounded-2xl border px-4 py-3 text-xs transition-all ${
+                        isFirst
+                          ? 'border-[#e8ab32]/60 bg-[#0a271f]/90 shadow-sm'
+                          : 'border-[#1b3b33] bg-[#041511]/80'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className={`font-display font-black text-xs w-6 ${isFirst ? 'text-[#e8ab32]' : 'text-[#8ba79e]'}`}>
+                          #{idx + 1}
+                        </span>
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className={`font-semibold ${isYou ? 'text-[#e8ab32] font-black' : 'text-[#fffdf8]'}`}>
+                              {player.username} {isYou ? '(You)' : ''}
+                            </span>
+                            {player.class && (
+                              <span className="text-[9px] uppercase font-black px-1.5 py-0.5 rounded bg-[#1b3b33] text-[#8ba79e]">
+                                {player.class}
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[10px] text-[#8ba79e]">
+                            Status: {player.status}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <span className="font-display font-black text-sm text-[#fffdf8]">
+                          {player.cumulativeScore ?? 0}
+                        </span>
+                        <span className="text-[10px] text-[#8ba79e] block -mt-0.5">pts</span>
+                      </div>
+                    </article>
+                  )
+                })}
               </div>
             </div>
 

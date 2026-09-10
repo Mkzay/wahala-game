@@ -10,11 +10,15 @@ interface GameBoardTableProps {
   activeCard: CardType | null
   marketCount: number
   reactionWindowEndsAtMs: number | null
+  reactionWindowTargetId?: string | null
+  reactionWindowAttackerId?: string | null
   onDrawCard: () => void
   onReactionResponse: (agree: boolean) => void
   localUserId: string
   declaredSuit?: string | null
   turnTimerSeconds?: number | null
+  marketTopCard?: CardType | null
+  isSpectator?: boolean
 }
 
 export function GameBoardTable({
@@ -23,11 +27,15 @@ export function GameBoardTable({
   activeCard,
   marketCount,
   reactionWindowEndsAtMs,
+  reactionWindowTargetId = null,
+  reactionWindowAttackerId = null,
   onDrawCard,
   onReactionResponse,
   localUserId,
   declaredSuit = null,
   turnTimerSeconds = null,
+  marketTopCard = null,
+  isSpectator = false,
 }: GameBoardTableProps) {
   const [timeLeft, setTimeLeft] = useState(0)
   const [turnSecondsLeft, setTurnSecondsLeft] = useState<number>(turnTimerSeconds ?? 20)
@@ -36,6 +44,27 @@ export function GameBoardTable({
   const opponents = players.filter((player) => player.userId !== localUserId)
   const isMyTurn = currentTurnPlayerId === localUserId
   const hasAutoDrawn = useRef(false)
+  const prevCheckUpUserId = useRef<string | null>(null)
+
+  // Check-Up Tension: detect when any active player drops to 1 card
+  const checkUpPlayer = players.find((p) => p.status === 'active' && p.cardCount === 1)
+  const isMyCheckUp = checkUpPlayer?.userId === localUserId
+
+  // Check-Up heartbeat audio tension loop (Recommendation #2)
+  useEffect(() => {
+    if (checkUpPlayer) {
+      if (prevCheckUpUserId.current !== checkUpPlayer.userId) {
+        prevCheckUpUserId.current = checkUpPlayer.userId
+        playUiSound('heartbeat')
+      }
+      const heartbeatInterval = window.setInterval(() => {
+        playUiSound('heartbeat')
+      }, 3600)
+      return () => window.clearInterval(heartbeatInterval)
+    } else {
+      prevCheckUpUserId.current = null
+    }
+  }, [checkUpPlayer?.userId])
 
   // Turn timer countdown and auto-draw trigger
   useEffect(() => {
@@ -99,11 +128,40 @@ export function GameBoardTable({
   const positionClass = (index: number) => {
     if (opponents.length === 1) return 'opponent-top'
     if (opponents.length === 2) return index === 0 ? 'opponent-left' : 'opponent-right'
-    return ['opponent-left', 'opponent-top', 'opponent-right'][index % 3]
+    if (opponents.length === 3) {
+      return ['opponent-left', 'opponent-top', 'opponent-right'][index]
+    }
+    if (opponents.length === 4) {
+      // 4 contenders around table (West, North, East, South)
+      return ['opponent-left', 'opponent-top', 'opponent-right', 'opponent-bottom'][index]
+    }
+    if (opponents.length === 5) {
+      return ['opponent-left', 'opponent-top-left', 'opponent-top-right', 'opponent-right', 'opponent-bottom'][index]
+    }
+    if (opponents.length === 6) {
+      return ['opponent-left', 'opponent-top-left', 'opponent-top', 'opponent-top-right', 'opponent-right', 'opponent-bottom'][index]
+    }
+    const slots = [
+      'opponent-left',
+      'opponent-top-left',
+      'opponent-top',
+      'opponent-top-right',
+      'opponent-right',
+      'opponent-bottom-right',
+      'opponent-bottom',
+      'opponent-bottom-left',
+    ]
+    return slots[index % slots.length]
   }
 
   return (
-    <div className="relative min-h-[440px] flex-1 overflow-hidden rounded-[26px] border-4 border-[#e8ab32]/90 shadow-[0_12px_0_#1c130b,0_32px_56px_rgba(0,0,0,0.45)] felt-table-bg sm:min-h-[530px] sm:rounded-[32px]">
+    <div
+      className={`relative w-full flex-1 overflow-hidden rounded-[26px] border-4 border-[#e8ab32]/90 shadow-[0_12px_0_#1c130b,0_32px_56px_rgba(0,0,0,0.45)] felt-table-bg sm:rounded-[32px] ${
+        isSpectator
+          ? 'min-h-[460px] h-[calc(100dvh-200px)] max-h-[660px] sm:min-h-[560px] sm:h-[calc(100dvh-220px)] sm:max-h-[760px]'
+          : 'min-h-[440px] sm:min-h-[530px]'
+      }`}
+    >
       {/* Brass insets & parlor oval rings */}
       <div className="absolute inset-3 rounded-[22px] border border-[#f7d884]/40 pointer-events-none sm:inset-4 sm:rounded-[26px]" />
       <div className="absolute inset-8 rounded-[50%] border border-[#e8ab32]/25 pointer-events-none sm:inset-10" />
@@ -135,12 +193,19 @@ export function GameBoardTable({
             )} ${isTurn ? 'is-turn' : ''}`}
           >
             <div
-              className={`relative grid h-12 w-12 place-items-center rounded-2xl border-2 transition-all duration-200 ${
+              className={`relative grid ${
+                opponents.length > 4 ? 'h-10 w-10 sm:h-12 sm:w-12' : 'h-12 w-12 sm:h-14 sm:w-14'
+              } place-items-center rounded-2xl border-2 transition-all duration-200 ${
                 isTurn
-                  ? 'border-w-yellow bg-[#064e43] shadow-[0_0_28px_rgba(232,171,50,0.6)] scale-105'
+                  ? 'border-w-yellow bg-[#064e43] shadow-[0_0_32px_rgba(232,171,50,0.85)] ring-4 ring-w-yellow/50 scale-110'
                   : 'border-w-border/80 bg-w-surface/95'
-              } backdrop-blur-md sm:h-14 sm:w-14`}
+              } backdrop-blur-md`}
             >
+              {isTurn && turnTimerSeconds && (
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full border border-w-yellow bg-[#071d17] px-2 py-0.5 font-mono text-[9px] font-black text-w-yellow shadow-md whitespace-nowrap z-20">
+                  ⏱ {turnSecondsLeft}s
+                </span>
+              )}
               <span
                 className={`font-display text-xs font-black sm:text-sm ${
                   isTurn ? 'text-w-yellow' : 'text-w-text'
@@ -183,12 +248,22 @@ export function GameBoardTable({
           <div className="absolute -bottom-1.5 -right-1.5 h-full w-full rounded-2xl border border-[#78350f] bg-[#431407]/90 -z-10" />
           <div className="absolute -bottom-3 -right-3 h-full w-full rounded-2xl border border-[#78350f] bg-[#431407]/80 -z-20 shadow-xl" />
 
-          <GameCard
-            card={{ id: 'market-top', suit: 'whot', value: 0 }}
-            isFlipped
-            isPlayable={false}
-            size="md"
-          />
+          {marketTopCard && (marketTopCard.suit as string).toLowerCase() !== 'hidden' ? (
+            <div className="relative group/prescience">
+              <GameCard card={marketTopCard} isPlayable={false} size="md" />
+              <span className="absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-indigo-400/60 bg-[#071813]/95 px-2.5 py-0.5 text-[8px] font-black uppercase tracking-wider text-indigo-300 shadow-[0_0_14px_rgba(99,102,241,0.6)] z-20 flex items-center gap-1">
+                <span>👁</span>
+                <span>Prescience</span>
+              </span>
+            </div>
+          ) : (
+            <GameCard
+              card={{ id: 'market-top', suit: 'whot', value: 0 }}
+              isFlipped
+              isPlayable={false}
+              size="md"
+            />
+          )}
 
           <span className="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-[#e8ab32] bg-[#022c25] px-2.5 py-1 text-[8px] font-black uppercase tracking-wider text-w-yellow shadow-md sm:px-3 sm:text-[9px]">
             Market · {marketCount}
@@ -226,57 +301,92 @@ export function GameBoardTable({
         </div>
       </div>
 
-      {/* Turn Indicator Banner at Bottom of Table */}
-      <div className="absolute bottom-4 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full border border-[#e8ab32]/60 bg-[#022c25]/85 px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] shadow-tactile-md backdrop-blur-md">
-        {isMyTurn ? (
-          <span className="text-w-yellow flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-w-yellow animate-ping" />
-            Your Turn · Play a Card
-            {turnTimerSeconds ? (
-              <span className={`ml-1 rounded-full px-2 py-0.5 font-mono text-[10px] font-black ${turnSecondsLeft <= 5 ? 'bg-w-danger text-[#fffdf8] animate-pulse' : 'bg-[#e8ab32]/25 text-w-yellow'}`}>
-                {turnSecondsLeft}s
+      {/* Turn Indicator Banner at Bottom of Table (Hidden for spectators so South contender avatar is unblocked) */}
+      {!isSpectator && (
+        <div className="absolute bottom-4 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-full border border-[#e8ab32]/60 bg-[#022c25]/85 px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] shadow-tactile-md backdrop-blur-md">
+          {isMyTurn ? (
+            <span className="text-w-yellow flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-w-yellow animate-ping" />
+              Your Turn · Play a Card
+              {turnTimerSeconds ? (
+                <span
+                  className={`ml-1 rounded-full px-2 py-0.5 font-mono text-[10px] font-black ${
+                    turnSecondsLeft <= 5
+                      ? 'bg-w-danger text-[#fffdf8] animate-pulse'
+                      : 'bg-[#e8ab32]/25 text-w-yellow'
+                  }`}
+                >
+                  {turnSecondsLeft}s
+                </span>
+              ) : null}
+            </span>
+          ) : (
+            <span className="text-[#ebd9b7]/80 flex items-center gap-2">
+              <span>
+                {players.find((p) => p.userId === currentTurnPlayerId)?.username
+                  ? `${players.find((p) => p.userId === currentTurnPlayerId)?.username}'s Turn`
+                  : 'Opponent Turn'}
               </span>
-            ) : null}
-          </span>
-        ) : (
-          <span className="text-[#ebd9b7]/80 flex items-center gap-2">
-            <span>Awaiting Contenders</span>
-            {turnTimerSeconds ? (
-              <span className="ml-1 rounded-full bg-[#064e43] px-2 py-0.5 font-mono text-[9px] text-[#ebd9b7]/60">
-                {turnSecondsLeft}s
-              </span>
-            ) : null}
-          </span>
-        )}
-      </div>
-
-      {/* Reaction Window Modal Counter */}
-      {reactionWindowEndsAtMs && timeLeft > 0 && (
-        <div className="absolute inset-x-4 top-14 z-40 mx-auto max-w-md animate-fade-in animate-reaction-tension rounded-2xl border-2 border-w-orange bg-[#fffdf8]/95 p-5 text-center shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-xl">
-          <div className="flex items-center justify-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-w-orange">
-            <span className="h-2.5 w-2.5 rounded-full bg-w-orange animate-ping" />
-            Penalty Incoming · {Math.ceil(timeLeft / 1000)}s
-          </div>
-          <p className="mt-2 text-xs leading-relaxed text-w-text-2">
-            A strike is heading your way. Counter with your class power or let it land.
-          </p>
-          <div className="mt-4 flex gap-3">
-            <button
-              type="button"
-              onClick={() => onReactionResponse(true)}
-              className="flex-1 rounded-xl bg-gradient-to-r from-w-orange to-w-yellow px-4 py-2.5 font-display text-xs font-black text-[#fffdf8] shadow-glow-orange transition-transform duration-160 hover:scale-[1.02] active:scale-[0.97]"
-            >
-              Reflect / Counter
-            </button>
-            <button
-              type="button"
-              onClick={() => onReactionResponse(false)}
-              className="flex-1 rounded-xl border border-w-border bg-w-surface px-4 py-2.5 font-display text-xs font-bold text-w-text-2 transition-transform duration-160 hover:border-w-orange active:scale-[0.97]"
-            >
-              Absorb Penalty
-            </button>
-          </div>
+              {turnTimerSeconds ? (
+                <span className="ml-1 rounded-full bg-[#064e43] px-2 py-0.5 font-mono text-[9px] text-[#ebd9b7]/60">
+                  {turnSecondsLeft}s
+                </span>
+              ) : null}
+            </span>
+          )}
         </div>
+      )}
+
+      {/* Check-Up Tension Banner (Recommendation #2) */}
+      {checkUpPlayer && (
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 whitespace-nowrap rounded-full border border-w-danger bg-[#18221c]/90 px-4 py-1 text-[9px] sm:text-xs font-black uppercase tracking-[0.18em] text-[#fffdf8] shadow-[0_0_20px_rgba(234,88,12,0.6)] backdrop-blur-md animate-pulse flex items-center gap-2">
+          <span className="h-2.5 w-2.5 rounded-full bg-w-danger animate-ping" />
+          <span>⚠️ {isMyCheckUp ? 'LAST CARD! YOU ARE ON CHECK-UP' : `${checkUpPlayer.username} ON LAST CARD · CHECK-UP THREAT!`}</span>
+        </div>
+      )}
+
+      {/* Reaction Window: Interactive for Targeted Player, Informational Banner for Spectators */}
+      {reactionWindowEndsAtMs && timeLeft > 0 && (
+        (!isSpectator && reactionWindowTargetId === localUserId) ? (
+          <div className="absolute inset-x-3 bottom-20 sm:bottom-auto sm:top-14 z-40 mx-auto max-w-md animate-fade-in animate-reaction-tension rounded-2xl border-2 border-w-orange bg-[#fffdf8]/95 p-4 sm:p-5 text-center shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-xl">
+            <div className="flex items-center justify-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-w-orange">
+              <span className="h-2.5 w-2.5 rounded-full bg-w-orange animate-ping" />
+              Penalty Incoming · {Math.ceil(timeLeft / 1000)}s
+            </div>
+            <p className="mt-2 text-xs leading-relaxed text-w-text-2">
+              A strike is heading your way. Counter with your class power or let it land.
+            </p>
+            <div className="mt-4 flex gap-3">
+              <button
+                type="button"
+                onClick={() => onReactionResponse(true)}
+                className="flex-1 min-h-[52px] sm:min-h-[44px] rounded-xl bg-gradient-to-r from-w-orange to-w-yellow px-4 py-3 sm:py-2.5 font-display text-sm sm:text-xs font-black text-[#fffdf8] shadow-glow-orange transition-transform duration-160 hover:scale-[1.02] active:scale-[0.96] touch-manipulation cursor-pointer flex items-center justify-center"
+              >
+                ⚡ Reflect / Counter
+              </button>
+              <button
+                type="button"
+                onClick={() => onReactionResponse(false)}
+                className="flex-1 min-h-[52px] sm:min-h-[44px] rounded-xl border-2 border-w-border bg-w-surface px-4 py-3 sm:py-2.5 font-display text-sm sm:text-xs font-bold text-w-text-2 transition-transform duration-160 hover:border-w-orange active:scale-[0.96] touch-manipulation cursor-pointer flex items-center justify-center"
+              >
+                🛡️ Absorb Penalty
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="absolute inset-x-3 bottom-20 sm:bottom-auto sm:top-14 z-40 mx-auto max-w-md animate-fade-in animate-reaction-tension rounded-2xl border-2 border-w-orange/70 bg-[#071d17]/95 p-4 text-center shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-xl">
+            <div className="flex items-center justify-center gap-2 text-xs font-black uppercase tracking-[0.16em] text-w-orange">
+              <span className="h-2.5 w-2.5 rounded-full bg-w-orange animate-ping" />
+              Counter-Action Window · {Math.ceil(timeLeft / 1000)}s
+            </div>
+            <p className="mt-2 text-xs font-bold text-[#fffdf8]">
+              ⚡ {players.find((p) => p.userId === reactionWindowAttackerId)?.username ?? 'Attacker'} struck {players.find((p) => p.userId === reactionWindowTargetId)?.username ?? 'Target'}!
+            </p>
+            <p className="mt-1 text-[11px] text-[#c2d6ce]">
+              {players.find((p) => p.userId === reactionWindowTargetId)?.username ?? 'Target'} has {Math.ceil(timeLeft / 1000)}s to trigger their class power defense or absorb the penalty.
+            </p>
+          </div>
+        )
       )}
     </div>
   )
