@@ -18,7 +18,8 @@ class LiveSocketService implements ISocketService {
       return this.socket
     }
 
-    const wsUrl = import.meta.env.VITE_WS_URL || 'http://localhost:3001'
+    const rawWsUrl = import.meta.env.VITE_WS_URL || import.meta.env.VITE_API_URL || 'http://localhost:3001'
+    const wsUrl = rawWsUrl.replace(/\/v1\/?$/, '').replace(/\/$/, '')
 
     const query: Record<string, string> = {}
     if (gameId) {
@@ -30,8 +31,8 @@ class LiveSocketService implements ISocketService {
 
     this.socket = io(wsUrl, {
       autoConnect: true,
-      transports: ['websocket'],
-      reconnectionAttempts: 3,
+      transports: ['websocket', 'polling'],
+      reconnectionAttempts: 5,
       reconnectionDelay: 1000,
       query,
       auth: { token: getAccessToken() },
