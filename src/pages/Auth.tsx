@@ -307,31 +307,33 @@ export default function Auth() {
             </button>
           </div>
 
-          {/* 1-Click Instant Spectator Mode */}
-          <div className="mt-5 rounded-2xl border-2 border-[#e8ab32]/40 bg-[#064e43]/20 p-3.5 text-center shadow-tactile-sm">
-            <p className="text-[11px] font-bold text-w-text-2 mb-2">
-              Want to watch a live match or tournament?
-            </p>
-            <button
-              type="button"
-              onClick={async () => {
-                setIsLoading(true)
-                try {
-                  await loginWithPassword('spectator@wahala.gg', 'Wayomikun1234$')
-                  setCanAccessGame(true)
-                  const target = destination === '/home' ? '/rooms/latest' : destination
-                  navigate(target)
-                } catch (err: any) {
-                  toast.error(err?.message || 'Failed to enter spectator mode')
-                } finally {
-                  setIsLoading(false)
-                }
-              }}
-              className="w-full rounded-xl bg-gradient-to-r from-w-yellow/90 to-w-orange px-4 py-3 font-display text-xs font-black text-[#fffdf8] shadow-tactile-sm transition-transform duration-150 hover:scale-[1.01] active:scale-[0.98] flex items-center justify-center gap-2"
-            >
-              👁️ Instant Spectator Access (1-Click)
-            </button>
-          </div>
+          {/* 1-Click Instant Spectator Mode (Dev Only) */}
+          {import.meta.env.DEV && (
+            <div className="mt-5 rounded-2xl border-2 border-[#e8ab32]/40 bg-[#064e43]/20 p-3.5 text-center shadow-tactile-sm">
+              <p className="text-[11px] font-bold text-w-text-2 mb-2">
+                Want to watch a live match or tournament?
+              </p>
+              <button
+                type="button"
+                onClick={async () => {
+                  setIsLoading(true)
+                  try {
+                    await loginWithPassword('spectator@wahala.gg', 'Wayomikun1234$')
+                    setCanAccessGame(true)
+                    const target = destination === '/home' ? '/rooms/latest' : destination
+                    navigate(target)
+                  } catch (err: any) {
+                    toast.error(err?.message || 'Failed to enter spectator mode')
+                  } finally {
+                    setIsLoading(false)
+                  }
+                }}
+                className="w-full rounded-xl bg-gradient-to-r from-w-yellow/90 to-w-orange px-4 py-3 font-display text-xs font-black text-[#fffdf8] shadow-tactile-sm transition-transform duration-150 hover:scale-[1.01] active:scale-[0.98] flex items-center justify-center gap-2"
+              >
+                👁️ Instant Spectator Access (1-Click)
+              </button>
+            </div>
+          )}
 
           {/* Toggle Tab link */}
           <p className="mt-6 text-center text-xs text-w-text-2">
