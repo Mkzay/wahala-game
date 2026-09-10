@@ -175,7 +175,7 @@ export function AbilitiesPanel({
         <div className="pointer-events-none fixed inset-0 z-50 border-[3px] border-[#e8ab32]/60 bg-[#e8ab32]/5 shadow-[inset_0_0_120px_rgba(232,171,50,0.3)] animate-pulse" />
       )}
 
-      <div className="fixed bottom-[10.75rem] right-3 z-40 sm:bottom-[166px] sm:right-6 flex flex-col items-end gap-2">
+      <div className="fixed bottom-[13.5rem] right-3 z-40 sm:bottom-[220px] sm:right-6 flex flex-col items-end gap-2">
         {message && (
           <div className="whitespace-nowrap rounded-xl border border-[#e8ab32]/40 bg-[#071d17]/95 px-3 py-2 text-[11px] font-black text-[#e8ab32] shadow-xl backdrop-blur-xl animate-fade-in">
             {message}

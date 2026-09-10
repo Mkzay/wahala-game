@@ -100,9 +100,15 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .game-card.is-playable:active { transform: translateY(-6px) scale(0.97); }
 .game-card.is-muted, .game-card.is-not-playable { opacity: 1; cursor: default; }
 .game-card.is-selected { transform: translateY(-24px) scale(1.08); box-shadow: var(--shadow-card-lift); border-color: var(--color-yellow); }
-.game-card-sm { width: 68px; height: 100px; padding: 9px; }
-.game-card-md { width: 104px; height: 150px; padding: 12px; }
-.game-card-lg { width: 136px; height: 196px; padding: 15px; }
+.game-card-sm { width: 84px; height: 122px; padding: 10px; }
+@media (min-width: 1024px) {
+  .game-card-sm { width: 98px; height: 142px; padding: 11px; }
+  .game-card-sm .card-glyph svg { width: 38px; height: 38px; }
+  .game-card-sm .card-suit-name { margin-top: 5px; font-size: .48em; }
+  .game-card-sm .card-caption { font-size: .44em; }
+}
+.game-card-md { width: 116px; height: 168px; padding: 13px; }
+.game-card-lg { width: 148px; height: 214px; padding: 16px; }
 .card-corner { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; line-height: 1; color: var(--suit-color); font-family: var(--font-display); }
 .card-corner strong { font-size: 1.25em; }
 .card-corner span { margin-top: 4px; font-family: var(--font-body); font-size: .8em; }
@@ -137,16 +143,16 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .opponent-right { right: 2.5%; }
   .opponent-top { top: 6%; }
   .opponent-bottom { bottom: 11%; }
-  .game-card-md { width: 76px; height: 112px; padding: 9px; border-radius: 13px; }
+  .game-card-md { width: 88px; height: 128px; padding: 10px; border-radius: 13px; }
   .game-card-md::before { inset: 5px; border-radius: 9px; }
-  .game-card-md .card-glyph svg { width: 31px; height: 31px; }
-  .game-card-md .card-suit-name { margin-top: 4px; font-size: .42em; }
-  .game-card-md .card-caption { padding: 3px 0; font-size: .4em; }
-  .game-card-sm { width: 62px; height: 92px; padding: 8px; border-radius: 13px; }
+  .game-card-md .card-glyph svg { width: 33px; height: 33px; }
+  .game-card-md .card-suit-name { margin-top: 4px; font-size: .44em; }
+  .game-card-md .card-caption { padding: 3px 0; font-size: .42em; }
+  .game-card-sm { width: 72px; height: 106px; padding: 9px; border-radius: 13px; }
   .game-card-sm::before { inset: 5px; border-radius: 9px; }
-  .game-card-sm .card-glyph svg { width: 25px; height: 25px; }
-  .game-card-sm .card-suit-name { margin-top: 3px; font-size: .38em; }
-  .game-card-sm .card-caption { padding: 2px 0; font-size: .36em; }
+  .game-card-sm .card-glyph svg { width: 28px; height: 28px; }
+  .game-card-sm .card-suit-name { margin-top: 3px; font-size: .40em; }
+  .game-card-sm .card-caption { padding: 2px 0; font-size: .38em; }
 }
 
 @media (prefers-reduced-motion: reduce) {

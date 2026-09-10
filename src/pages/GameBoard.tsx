@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useGameSocket } from '../hooks/useGameSocket'
 import { useGamePhaseRouting } from '../hooks/useGamePhaseRouting'
 import { useGameStore } from '../store/gameStore'
@@ -16,6 +16,7 @@ import {
 } from '../components/game/GameCard'
 import { GameBoardTable } from '../components/game/GameBoardTable'
 import { AbilitiesPanel } from '../components/game/AbilitiesPanel'
+import { ConfirmModal } from '../components/ui/ConfirmModal'
 import type { CardType } from '../components/game/GameCard'
 import { toast } from '../store/toastStore'
 import { playUiSound } from '../lib/sound'
@@ -33,6 +34,8 @@ export default function GameBoard() {
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null)
   const [pendingWhotCard, setPendingWhotCard] = useState<CardType | null>(null)
   const [shakingCardId, setShakingCardId] = useState<string | null>(null)
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false)
+  const navigate = useNavigate()
   const userId = user?.id ?? ''
   const players = gameState?.players ?? []
   const activeCard = gameState?.activeCard ? mapCard(gameState.activeCard) : null
@@ -148,20 +151,21 @@ export default function GameBoard() {
   return (
     <main
       className={`min-h-screen w-full bg-w-bg text-w-text flex flex-col px-3 sm:px-5 pt-2 ${
-        isSpectator ? 'pb-28 sm:pb-32 justify-between' : 'pb-52 sm:pb-56'
+        isSpectator ? 'pb-28 sm:pb-32 justify-between' : 'pb-60 sm:pb-64'
       }`}
     >
       {/* Parlor Header */}
       <header className="mx-auto flex w-full max-w-[1500px] items-center justify-between gap-2 border-b border-w-border/70 pb-2.5 sm:gap-4 sm:pb-3">
         {/* Left: Branding & Mobile Quick Status */}
         <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
-          <Link
-            to="/home"
+          <button
+            type="button"
+            onClick={() => setShowLeaveConfirm(true)}
             className="grid h-8 w-8 sm:h-9 sm:w-9 place-items-center rounded-xl border border-w-border bg-w-surface text-w-text-2 transition-transform duration-160 hover:border-w-orange hover:text-w-orange hover:scale-105 active:scale-95"
             aria-label="Leave table"
           >
             ←
-          </Link>
+          </button>
           <div>
             <div className="flex items-center gap-2">
               <p className="font-display text-base sm:text-lg font-black tracking-[0.16em] text-w-text leading-none">
@@ -428,7 +432,7 @@ export default function GameBoard() {
                 )}
               </div>
 
-              <div className="no-scrollbar flex min-h-[142px] items-end justify-center overflow-x-auto px-6 pb-2 pt-6 sm:min-h-[180px] sm:justify-center">
+              <div className="no-scrollbar flex min-h-[160px] items-end justify-center overflow-x-auto px-6 pb-2 pt-6 sm:min-h-[200px] sm:justify-center">
                 {myHand.length ? (
                   <div
                     className={`flex items-end ${
@@ -525,72 +529,85 @@ export default function GameBoard() {
       {/* Whot 20 Suit Declaration Modal - Non-blocking above visible hand */}
       {pendingWhotCard && (
         <>
-          {/* Subtle table backdrop dimming that stops above the hand tray */}
+          {/* Full-screen backdrop */}
           <div
-            className="fixed inset-0 bottom-[160px] z-40 bg-black/40 backdrop-blur-[2px] animate-fade-in sm:bottom-[200px]"
+            className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-[3px] animate-fade-in"
             onClick={() => setPendingWhotCard(null)}
           />
-          <div className="fixed bottom-[170px] left-1/2 z-40 w-[94%] max-w-md -translate-x-1/2 animate-pop-in sm:bottom-[210px]">
-            <div className="rounded-[24px] border-2 border-w-yellow bg-[#064e43]/95 p-5 text-center shadow-[0_20px_50px_rgba(0,0,0,0.65)] backdrop-blur-xl sm:p-6">
-              <span className="text-[10px] font-black uppercase tracking-[0.22em] text-w-yellow">
-                Wahala Wildcard
-              </span>
-              <h3 className="mt-1 font-display text-xl font-black text-[#fffdf8]">
-                Demand a Suit
-              </h3>
-              <p className="mt-1 text-xs text-[#ebd9b7]/80">
-                Choose the shape to demand (check your hand below):
-              </p>
-              <div className="mt-4 grid grid-cols-5 gap-2.5 sm:gap-3">
-                {[
-                  {
-                    name: 'Circle',
-                    glyph: <CircleSuitGlyph size={36} />,
-                    bg: 'bg-[#059669]/20 border-[#059669] text-[#10b981] hover:bg-[#059669]/35 hover:border-[#34d399]',
-                  },
-                  {
-                    name: 'Triangle',
-                    glyph: <TriangleSuitGlyph size={36} />,
-                    bg: 'bg-[#0284c7]/20 border-[#0284c7] text-[#38bdf8] hover:bg-[#0284c7]/35 hover:border-[#7dd3fc]',
-                  },
-                  {
-                    name: 'Cross',
-                    glyph: <CrossSuitGlyph size={36} />,
-                    bg: 'bg-[#e11d48]/20 border-[#e11d48] text-[#fb7185] hover:bg-[#e11d48]/35 hover:border-[#fda4af]',
-                  },
-                  {
-                    name: 'Square',
-                    glyph: <SquareSuitGlyph size={36} />,
-                    bg: 'bg-[#7c3aed]/20 border-[#7c3aed] text-[#a78bfa] hover:bg-[#7c3aed]/35 hover:border-[#c4b5fd]',
-                  },
-                  {
-                    name: 'Star',
-                    glyph: <StarSuitGlyph size={36} />,
-                    bg: 'bg-[#d97706]/20 border-[#d97706] text-[#fbbf24] hover:bg-[#d97706]/35 hover:border-[#fde047]',
-                  },
-                ].map((s) => (
-                  <button
-                    key={s.name}
-                    type="button"
-                    aria-label={`Demand ${s.name}`}
-                    onClick={() => handleSelectDeclaredSuit(s.name)}
-                    className={`flex h-14 items-center justify-center rounded-2xl border-2 ${s.bg} p-2 transition-all duration-160 hover:scale-110 active:scale-95 shadow-md sm:h-16`}
-                  >
-                    {s.glyph}
-                  </button>
-                ))}
+          <div className="fixed inset-0 z-[60] grid place-items-center p-4 pointer-events-none">
+            <div className="pointer-events-auto w-full max-w-sm animate-pop-in">
+              <div className="rounded-[24px] border-2 border-w-yellow bg-[#064e43]/95 p-5 text-center shadow-[0_20px_50px_rgba(0,0,0,0.65)] backdrop-blur-xl sm:p-6">
+                <span className="text-[10px] font-black uppercase tracking-[0.22em] text-w-yellow">
+                  Wahala Wildcard
+                </span>
+                <h3 className="mt-1 font-display text-xl font-black text-[#fffdf8]">
+                  Demand a Suit
+                </h3>
+                <p className="mt-1 text-xs text-[#ebd9b7]/80">
+                  Choose the shape to demand (check your hand below):
+                </p>
+                <div className="mt-4 grid grid-cols-5 gap-2.5 sm:gap-3">
+                  {[
+                    {
+                      name: 'Circle',
+                      glyph: <CircleSuitGlyph size={36} />,
+                      bg: 'bg-[#059669]/20 border-[#059669] text-[#10b981] hover:bg-[#059669]/35 hover:border-[#34d399]',
+                    },
+                    {
+                      name: 'Triangle',
+                      glyph: <TriangleSuitGlyph size={36} />,
+                      bg: 'bg-[#0284c7]/20 border-[#0284c7] text-[#38bdf8] hover:bg-[#0284c7]/35 hover:border-[#7dd3fc]',
+                    },
+                    {
+                      name: 'Cross',
+                      glyph: <CrossSuitGlyph size={36} />,
+                      bg: 'bg-[#e11d48]/20 border-[#e11d48] text-[#fb7185] hover:bg-[#e11d48]/35 hover:border-[#fda4af]',
+                    },
+                    {
+                      name: 'Square',
+                      glyph: <SquareSuitGlyph size={36} />,
+                      bg: 'bg-[#7c3aed]/20 border-[#7c3aed] text-[#a78bfa] hover:bg-[#7c3aed]/35 hover:border-[#c4b5fd]',
+                    },
+                    {
+                      name: 'Star',
+                      glyph: <StarSuitGlyph size={36} />,
+                      bg: 'bg-[#d97706]/20 border-[#d97706] text-[#fbbf24] hover:bg-[#d97706]/35 hover:border-[#fde047]',
+                    },
+                  ].map((s) => (
+                    <button
+                      key={s.name}
+                      type="button"
+                      aria-label={`Demand ${s.name}`}
+                      onClick={() => handleSelectDeclaredSuit(s.name)}
+                      className={`flex h-14 items-center justify-center rounded-2xl border-2 ${s.bg} p-2 transition-all duration-160 hover:scale-110 active:scale-95 shadow-md sm:h-16`}
+                    >
+                      {s.glyph}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPendingWhotCard(null)}
+                  className="mt-4 text-[10px] font-bold uppercase tracking-wider text-[#ebd9b7]/60 hover:text-[#ebd9b7]"
+                >
+                  Cancel
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setPendingWhotCard(null)}
-                className="mt-4 text-[10px] font-bold uppercase tracking-wider text-[#ebd9b7]/60 hover:text-[#ebd9b7]"
-              >
-                Cancel
-              </button>
             </div>
           </div>
         </>
       )}
+      {/* Leave Game Confirmation Modal */}
+      <ConfirmModal
+        open={showLeaveConfirm}
+        title="Leave Table?"
+        message="Leaving mid-game will forfeit the round. Your opponents will continue without you."
+        confirmLabel="Leave"
+        cancelLabel="Stay"
+        variant="warning"
+        onConfirm={() => navigate('/home')}
+        onCancel={() => setShowLeaveConfirm(false)}
+      />
     </main>
   )
 }

@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
 import { isSoundEnabled, setSoundEnabled } from '../../lib/sound'
 import { Icon, type IconName } from './Icon'
+import { ConfirmModal } from './ConfirmModal'
 
 const navItems: Array<{ label: string; path: string; icon: IconName }> = [
   { label: 'Dashboard', path: '/home', icon: 'home' },
@@ -26,8 +27,10 @@ export function DashboardNavBar() {
   const user = useAuthStore((state) => state.user)
   const logout = useAuthStore((state) => state.logout)
   const [soundOn, setSoundOn] = useState(() => isSoundEnabled())
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
   const isSettings = location.pathname === '/settings'
-  const handleLogout = () => { logout(); navigate('/auth') }
+  const handleLogout = () => setShowLogoutConfirm(true)
+  const confirmLogout = () => { logout(); navigate('/auth') }
   const toggleSound = () => { const next = !soundOn; setSoundOn(next); setSoundEnabled(next) }
 
   return <>
@@ -63,5 +66,16 @@ export function DashboardNavBar() {
     </header>
 
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t-2 border-[#e8ab32]/30 bg-[#061c17]/95 px-2 py-2 backdrop-blur-2xl lg:hidden"><div className="mx-auto flex max-w-md items-center justify-around">{mobileNavItems.map((item) => { const active = location.pathname === item.path; return <Link key={item.path} to={item.path} className={`flex min-w-12 flex-col items-center gap-1 rounded-xl px-2 py-1 text-[9px] font-extrabold transition ${active ? 'bg-w-orange text-[#fff9ea] shadow-[0_3px_0_#a43f2d]' : 'text-w-text-3'}`}><Icon name={item.icon} size={19} /><span>{item.label}</span></Link> })}<button type="button" onClick={handleLogout} className="flex min-w-12 flex-col items-center gap-1 rounded-xl px-2 py-1 text-[9px] font-extrabold text-w-text-3"><Icon name="logout" size={19} /><span>Logout</span></button></div></nav>
+
+    <ConfirmModal
+      open={showLogoutConfirm}
+      title="Log Out?"
+      message="You'll need to sign back in to access your decks and rooms."
+      confirmLabel="Log Out"
+      cancelLabel="Stay"
+      variant="danger"
+      onConfirm={confirmLogout}
+      onCancel={() => setShowLogoutConfirm(false)}
+    />
   </>
 }

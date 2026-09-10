@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useGameStore } from '../store/gameStore'
 import { useAuth } from '../hooks/useAuth'
 import { toast } from '../store/toastStore'
-import { useTheme } from '../hooks/useTheme'
 
 type AuthTab = 'signin' | 'signup'
 
@@ -17,7 +16,6 @@ export default function Auth() {
 
   const setCanAccessGame = useGameStore((state) => state.setCanAccessGame)
   const { isAuthenticated, loginWithPassword, signupWithEmail } = useAuth()
-  const { theme, toggleTheme } = useTheme()
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -135,8 +133,37 @@ export default function Auth() {
 
       {/* Right Column: Form Panel (cols 5 on desktop) */}
       <section className="relative col-span-1 lg:col-span-5 flex flex-col justify-center px-6 py-12 lg:p-16 overflow-y-auto h-full">
-        <button type="button" onClick={toggleTheme} title="Toggle theme" aria-label="Toggle theme" className="absolute right-5 top-5 rounded-xl border border-w-border bg-w-surface px-3 py-2 text-xs font-bold text-w-text-2 transition hover:border-w-orange hover:text-w-orange">{theme === 'dark' ? '☼ Light' : '☾ Dark'}</button>
-        <div className="w-full max-w-sm mx-auto">
+        {/* Mobile-only floating card decorations (hidden on desktop where the left panel has them) */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none lg:hidden" aria-hidden="true">
+          <div className="absolute -top-4 -right-6 opacity-[0.07] transform rotate-[18deg] scale-90">
+            <div className="w-24 h-36 border-2 border-w-warrior/60 rounded-xl bg-gradient-to-br from-w-surface to-w-surface-2 flex flex-col justify-between p-2.5">
+              <span className="font-display font-black text-xs text-w-warrior">J</span>
+              <div className="flex-1 flex items-center justify-center text-w-warrior">
+                <svg className="h-8 w-8 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" /></svg>
+              </div>
+              <span className="font-display font-black text-xs text-w-warrior transform rotate-180">J</span>
+            </div>
+          </div>
+          <div className="absolute bottom-24 -left-4 opacity-[0.07] transform -rotate-[14deg] scale-75">
+            <div className="w-20 h-30 border-2 border-w-support/60 rounded-xl bg-gradient-to-br from-w-surface to-w-surface-2 flex flex-col justify-between p-2">
+              <span className="font-display font-black text-[10px] text-w-support">W</span>
+              <div className="flex-1 flex items-center justify-center text-w-support">
+                <svg className="h-6 w-6 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12V17L12 22L22 17V12C22 6.48 17.52 2 12 2ZM12 19.8L5.5 16.6V12.8L12 15.6L18.5 12.8V16.6L12 19.8Z" /></svg>
+              </div>
+              <span className="font-display font-black text-[10px] text-w-support transform rotate-180">W</span>
+            </div>
+          </div>
+          <div className="absolute top-1/2 -right-3 opacity-[0.05] transform rotate-[8deg] scale-[0.65]">
+            <div className="w-20 h-30 border-2 border-w-orange/60 rounded-xl bg-gradient-to-br from-w-surface to-w-surface-2 flex flex-col justify-between p-2">
+              <span className="font-display font-black text-[10px] text-w-orange">5</span>
+              <div className="flex-1 flex items-center justify-center text-w-orange">
+                <svg className="h-6 w-6 fill-current" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" /></svg>
+              </div>
+              <span className="font-display font-black text-[10px] text-w-orange transform rotate-180">5</span>
+            </div>
+          </div>
+        </div>
+        <div className="w-full max-w-sm mx-auto relative">
           
           {/* Header */}
           <header className="mb-6 text-center lg:text-left">
